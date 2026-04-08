@@ -303,7 +303,7 @@ git commit -m "feat: add config.yaml.example with full PRD §10 schema and comme
 
 - [ ] **Step 1: Write the failing import test**
 
-Create `tests/test_config.py`:
+Create `tests/test_config.py` with **only the dataclass imports** — builders and `load_config` are not added until Tasks 4 and 5:
 
 ```python
 """Tests for config.py — loader and dataclasses."""
@@ -330,10 +330,6 @@ from config import (
     StreamConfig,
     TailscaleConfig,
     WebConfig,
-    _build_dataset,
-    _build_section,
-    _build_sensors,
-    load_config,
 )
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
@@ -552,7 +548,33 @@ git commit -m "feat: add config dataclasses and import smoke test"
 - Modify: `tests/test_config.py` (add 4 builder tests)
 - Modify: `config.py` (add 3 builder functions)
 
-- [ ] **Step 1: Write 4 failing builder tests**
+- [ ] **Step 1: Extend imports in `tests/test_config.py` for builder helpers**
+
+Add the builder imports to the existing `from config import (...)` block:
+
+```python
+from config import (
+    AlertsConfig,
+    ApiConfig,
+    AppConfig,
+    AudioConfig,
+    CloudflareConfig,
+    DatasetConfig,
+    HealthchecksConfig,
+    MonitorConfig,
+    RetentionConfig,
+    SensorNodeConfig,
+    SensorsConfig,
+    StreamConfig,
+    TailscaleConfig,
+    WebConfig,
+    _build_dataset,       # add
+    _build_section,       # add
+    _build_sensors,       # add
+)
+```
+
+- [ ] **Step 2: Write 4 failing builder tests**
 
 Append to `tests/test_config.py`:
 
@@ -591,7 +613,7 @@ def test_sensor_defaults_from_builder():
     assert result.vitals.enabled is False
 ```
 
-- [ ] **Step 2: Run tests to confirm they fail**
+- [ ] **Step 3: Run tests to confirm they fail**
 
 ```bash
 pytest tests/test_config.py -k "example_file or coercion or cast_failure or sensor_defaults" -v
@@ -599,7 +621,7 @@ pytest tests/test_config.py -k "example_file or coercion or cast_failure or sens
 
 Expected: 4 failures — `ImportError` on `_build_section`, `_build_dataset`, `_build_sensors`
 
-- [ ] **Step 3: Create the fixtures directory and `config_valid.yaml`**
+- [ ] **Step 4: Create the fixtures directory and `config_valid.yaml`**
 
 ```bash
 mkdir -p tests/fixtures
@@ -639,7 +661,7 @@ alerts:
   low_confidence_cooldown_minutes: 60
 ```
 
-- [ ] **Step 4: Add builder functions to `config.py`**
+- [ ] **Step 5: Add builder functions to `config.py`**
 
 Add these after the `AppConfig` dataclass definition:
 
@@ -714,7 +736,7 @@ def _build_sensors(raw: dict[str, Any]) -> SensorsConfig:
     )
 ```
 
-- [ ] **Step 5: Run the 4 builder tests to verify they pass**
+- [ ] **Step 6: Run the 4 builder tests to verify they pass**
 
 ```bash
 pytest tests/test_config.py -k "example_file or coercion or cast_failure or sensor_defaults" -v
@@ -722,7 +744,7 @@ pytest tests/test_config.py -k "example_file or coercion or cast_failure or sens
 
 Expected: 4 PASS
 
-- [ ] **Step 6: Run all tests so far**
+- [ ] **Step 7: Run all tests so far**
 
 ```bash
 pytest tests/test_config.py -v
@@ -730,7 +752,7 @@ pytest tests/test_config.py -v
 
 Expected: 5 tests pass. Remaining tests fail with `ImportError` on `load_config` — that is expected.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
 git add config.py tests/test_config.py tests/fixtures/config_valid.yaml
@@ -747,7 +769,34 @@ git commit -m "feat: add config builder helpers with tests"
 - Modify: `config.py` (add `load_config` and `_REQUIRED_SECRETS`)
 - Modify: `tests/test_config.py` (add 7 `load_config` tests)
 
-- [ ] **Step 1: Write 7 failing `load_config` tests**
+- [ ] **Step 1: Extend imports in `tests/test_config.py` for `load_config`**
+
+Add `load_config` to the existing `from config import (...)` block:
+
+```python
+from config import (
+    AlertsConfig,
+    ApiConfig,
+    AppConfig,
+    AudioConfig,
+    CloudflareConfig,
+    DatasetConfig,
+    HealthchecksConfig,
+    MonitorConfig,
+    RetentionConfig,
+    SensorNodeConfig,
+    SensorsConfig,
+    StreamConfig,
+    TailscaleConfig,
+    WebConfig,
+    _build_dataset,
+    _build_section,
+    _build_sensors,
+    load_config,   # add
+)
+```
+
+- [ ] **Step 2: Write 7 failing `load_config` tests**
 
 Append to `tests/test_config.py`:
 
@@ -809,7 +858,7 @@ def test_missing_required_section_raises(tmp_path):
         load_config(str(p))
 ```
 
-- [ ] **Step 2: Run tests to confirm they fail**
+- [ ] **Step 3: Run tests to confirm they fail**
 
 ```bash
 pytest tests/test_config.py -k "load_valid or missing_required or file_not or invalid_yaml or unknown_keys or required_section" -v
@@ -817,7 +866,7 @@ pytest tests/test_config.py -k "load_valid or missing_required or file_not or in
 
 Expected: 7 failures — `ImportError` on `load_config`
 
-- [ ] **Step 3: Add `load_config()` to `config.py`**
+- [ ] **Step 4: Add `load_config()` to `config.py`**
 
 Append after the builder helpers:
 
@@ -874,7 +923,7 @@ def load_config(path: str = "config.yaml") -> AppConfig:
     return config
 ```
 
-- [ ] **Step 4: Run the 7 new tests to verify they pass**
+- [ ] **Step 5: Run the 7 new tests to verify they pass**
 
 ```bash
 pytest tests/test_config.py -k "load_valid or missing_required or file_not or invalid_yaml or unknown_keys or required_section" -v
@@ -882,7 +931,7 @@ pytest tests/test_config.py -k "load_valid or missing_required or file_not or in
 
 Expected: 7 PASS
 
-- [ ] **Step 5: Run the full test suite**
+- [ ] **Step 6: Run the full test suite**
 
 ```bash
 pytest tests/test_config.py -v
@@ -890,7 +939,7 @@ pytest tests/test_config.py -v
 
 Expected: all 12 tests pass (1 import smoke test + 4 builder tests + 7 loader tests)
 
-- [ ] **Step 6: Run ruff and black**
+- [ ] **Step 7: Run ruff and black**
 
 ```bash
 ruff check config.py tests/test_config.py && black --check config.py tests/test_config.py
@@ -898,14 +947,14 @@ ruff check config.py tests/test_config.py && black --check config.py tests/test_
 
 Fix any issues before committing. Common ruff fixes: add type annotations to lambdas in `_REQUIRED_SECRETS`, ensure `Any` is imported. Common black fixes: line length.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
 git add config.py tests/test_config.py
 git commit -m "feat: add load_config() with full 12-test suite"
 ```
 
-- [ ] **Step 8: Final gate — full test suite**
+- [ ] **Step 9: Final gate — full test suite**
 
 ```bash
 pytest -v
