@@ -22,6 +22,9 @@ from config import (
     StreamConfig,
     TailscaleConfig,
     WebConfig,
+    _build_dataset,
+    _build_section,
+    _build_sensors,
 )
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
@@ -69,3 +72,36 @@ def test_appconfig_dataclass_fields():
     }
     field_names = {f.name for f in dataclasses.fields(AppConfig)}
     assert field_names == required | optional
+
+
+def test_example_file_structurally_valid():
+    """config.yaml.example must construct each section without raising."""
+    with open(EXAMPLE_FILE) as f:
+        raw = yaml.safe_load(f)
+    _build_section(raw, "api", ApiConfig)
+    _build_section(raw, "monitor", MonitorConfig)
+    _build_section(raw, "alerts", AlertsConfig)
+    _build_dataset(raw)
+    _build_sensors(raw)
+
+
+def test_quoted_numeric_coercion():
+    """A quoted integer in YAML (e.g. "45") is cast to int correctly."""
+    raw = {"monitor": {"interval_seconds": "45"}}
+    result = _build_section(raw, "monitor", MonitorConfig)
+    assert result.interval_seconds == 45
+    assert isinstance(result.interval_seconds, int)
+
+
+def test_int_cast_failure_raises():
+    """A non-numeric value for an int field raises ValueError naming the field."""
+    raw = {"monitor": {"interval_seconds": "not_a_number"}}
+    with pytest.raises(ValueError, match="monitor.interval_seconds"):
+        _build_section(raw, "monitor", MonitorConfig)
+
+
+def test_sensor_defaults_from_builder():
+    """Calling _build_sensors with no sensors key produces disabled-by-default nodes."""
+    result = _build_sensors({})
+    assert result.load_cells.enabled is False
+    assert result.vitals.enabled is False

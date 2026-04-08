@@ -6,7 +6,14 @@ Never re-read mid-run, never accessed via a global.
 
 from __future__ import annotations
 
+import dataclasses
+import logging
 from dataclasses import dataclass, field
+from typing import Any, get_type_hints
+
+import yaml
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -126,3 +133,77 @@ class AppConfig:
     tailscale: TailscaleConfig = field(default_factory=TailscaleConfig)
     sensors: SensorsConfig = field(default_factory=SensorsConfig)
     audio: AudioConfig = field(default_factory=AudioConfig)
+
+
+_KNOWN_TOP_LEVEL_KEYS = frozenset(
+    {
+        "api",
+        "monitor",
+        "alerts",
+        "healthchecks",
+        "dataset",
+        "stream",
+        "web",
+        "cloudflare",
+        "tailscale",
+        "sensors",
+        "audio",
+    }
+)
+
+
+def _build_section(raw: dict[str, Any], section_key: str, cls: type) -> Any:
+    """Construct a frozen dataclass from a YAML section dict."""
+    section_raw = raw.get(section_key, {}) or {}
+    hints = get_type_hints(cls)
+    field_names = {f.name for f in dataclasses.fields(cls)}
+    kwargs: dict[str, Any] = {}
+
+    for key, val in section_raw.items():
+        if key not in field_names:
+            continue
+        hint = hints.get(key)
+        if hint in (int, float):
+            try:
+                kwargs[key] = hint(val)
+            except (ValueError, TypeError) as exc:
+                raise ValueError(
+                    f"Config key {section_key}.{key} must be {hint.__name__}, got: {val!r}"
+                ) from exc
+        else:
+            kwargs[key] = val
+
+    return cls(**kwargs)
+
+
+def _build_dataset(raw: dict[str, Any]) -> DatasetConfig:
+    """Build DatasetConfig, deriving sub-paths from base_dir when not specified."""
+    section = raw.get("dataset", {}) or {}
+    base_dir = str(section.get("base_dir") or "/home/pi/eldercare/dataset")
+    images_dir = str(section.get("images_dir") or f"{base_dir}/images")
+    log_file = str(section.get("log_file") or f"{base_dir}/log.jsonl")
+    checkin_log_file = str(section.get("checkin_log_file") or f"{base_dir}/checkins.jsonl")
+    max_disk_gb = int(section.get("max_disk_gb", 50))
+    retention_raw = section.get("retention", {}) or {}
+    retention = _build_section({"retention": retention_raw}, "retention", RetentionConfig)
+    return DatasetConfig(
+        base_dir=base_dir,
+        images_dir=images_dir,
+        log_file=log_file,
+        checkin_log_file=checkin_log_file,
+        max_disk_gb=max_disk_gb,
+        retention=retention,
+    )
+
+
+def _build_sensors(raw: dict[str, Any]) -> SensorsConfig:
+    """Build SensorsConfig with nested SensorNodeConfig instances."""
+    section = raw.get("sensors", {}) or {}
+    load_cells_raw = section.get("load_cells", {}) or {}
+    vitals_raw = section.get("vitals", {}) or {}
+    return SensorsConfig(
+        load_cells=_build_section(
+            {"load_cells": load_cells_raw}, "load_cells", SensorNodeConfig
+        ),
+        vitals=_build_section({"vitals": vitals_raw}, "vitals", SensorNodeConfig),
+    )
