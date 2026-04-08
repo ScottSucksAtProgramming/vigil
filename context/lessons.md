@@ -1,0 +1,20 @@
+---
+title: "grandma-watcher Lessons Learned"
+summary: "Running log of corrections, preferences, and discoveries for the eldercare monitor project"
+created: 2026-04-07
+updated: 2026-04-07
+---
+
+# grandma-watcher Lessons Learned
+
+<!-- Append dated one-liners below. When 3+ related lessons accumulate on a topic, extract into a dedicated context file. -->
+
+2026-04-07: go2rtc on Pi 5 requires `rpicam-vid` (not `libcamera-vid`) with `--libav-format h264` — without this flag rpicam-vid cannot write to stdout.
+2026-04-07: Together AI does not offer Qwen2.5-VL-72B on serverless endpoints; switched to OpenRouter + Qwen3-VL-32B-Instruct (~$13.50/month at 30s intervals, 960×540).
+2026-04-07: WebRTC media (UDP) cannot traverse Cloudflare Tunnel (HTTP-only); two-way audio routed via Tailscale instead — Mom needs Tailscale app for audio only.
+2026-04-07: Pushover does not support multi-button action callbacks — labeling moved to dashboard gallery with supplemental URL link in notification.
+2026-04-07: VLMs cannot distinguish Parkinson's tremors from entrapment in a single still frame — removed that distinction from the prompt; let N-of-5 sliding window handle noise instead.
+2026-04-07: patient_location sliding window should flush on silence activation — hours may pass between silence and return, stale pre-silence frames should not influence post-return alerts.
+2026-04-08: Prep task ordering matters — pyproject.toml (pythonpath config) must exist before any test can be written, even to fail correctly; bootstrap it before models.py, not after.
+2026-04-08: AlertType.INFO is needed alongside SYSTEM for informational Mom notifications (e.g. silence-resume) — overloading SYSTEM conflates builder system-health alerts with patient-state notifications.
+2026-04-08: Codex workflow: design spec → Opus spec review → implementation plan → Opus plan review → Codex brief → verify output. Two Opus review passes caught 6 spec issues and 1 plan issue before implementation.

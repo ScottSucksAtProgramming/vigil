@@ -1,0 +1,20 @@
+grandma-watcher:
+
+	Prep:
+		- Define domain types in models.py (AssessmentResult, Alert, SensorSnapshot) @done
+		- Write full config.yaml schema with defaults and comments @na
+		- Set up pyproject.toml with ruff, black, and pytest configured @na
+		- Create Makefile with single pre-merge check command @na
+		- Create tests/ scaffold with conftest.py and a fixture JPEG for mocking the camera @na
+		- Document local dev strategy in context/dev-environment.md @na
+
+	Milestone 1 - Core Monitor Loop:
+		- Implement models.py dataclasses @na
+		- Implement prompt_builder.py (builds VLM prompt from config + sensor snapshot) @na
+		- Implement OpenRouterProvider satisfying VLMProvider protocol @na
+		- Implement alert decision logic in alert.py (decision matrix from PRD §6.3) @na
+		- Implement PushoverChannel satisfying AlertChannel protocol @na
+		- Implement dataset.py (append log entry to log.jsonl, save image) @na
+		- Wire monitor.py core loop (fetch frame → assess → decide → alert → log) @na
+		- Integration test: full cycle with mocked camera, mocked OpenRouter, mocked Pushover @na
+		- Smoke test on Pi: verify real camera frame flows through and alert fires correctly @na
