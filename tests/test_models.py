@@ -1,11 +1,12 @@
 import pytest
+
 from models import (
+    Alert,
+    AlertPriority,
+    AlertType,
+    AssessmentResult,
     Confidence,
     PatientLocation,
-    AlertType,
-    AlertPriority,
-    AssessmentResult,
-    Alert,
     SensorSnapshot,
 )
 
