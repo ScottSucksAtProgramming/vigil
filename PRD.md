@@ -156,6 +156,14 @@ Mom needs one app install (Tailscale) for audio. All other features work from a 
 
 **Cost estimate:** ~700 image tokens + ~350 prompt text tokens = ~1,050 input tokens per call. At 2,880 calls/day: ~3M input tokens/day + ~290K output tokens/day. Monthly: ~93M input ($9.70 at $0.104/M) + ~9M output ($3.74 at $0.416/M) = **~$13.50/month**. Actual cost varies with image tokenization — validate against the OpenRouter usage dashboard after first real test session.
 
+**Local Testing (development only):**
+During hardware bringup and camera integration testing, the builder can run a
+local LM Studio instance (MacBook Pro) and point the Pi at it to avoid OpenRouter
+API costs. Set `api.provider: lmstudio` in `config.yaml`. The Pi reaches LM Studio
+over LAN or Tailscale; LM Studio must be configured to listen on `0.0.0.0`.
+Switch back to `api.provider: openrouter` for production. See
+`docs/superpowers/specs/2026-04-09-lmstudio-provider-design.md` for full details.
+
 ### 6.2 Prompt Template
 
 ```
@@ -404,7 +412,7 @@ eldercare/
 ```yaml
 # API Configuration
 api:
-  provider: "openrouter"  # openrouter | hyperbolic | anthropic
+  provider: "openrouter"  # openrouter | hyperbolic | anthropic | lmstudio
   model: "qwen/qwen3-vl-32b-instruct"
   openrouter_api_key: ""
   hyperbolic_api_key: ""
@@ -414,6 +422,8 @@ api:
   fallback_provider: "hyperbolic"
   fallback_model: "qwen/qwen2.5-vl-72b-instruct"
   consecutive_failure_threshold: 5  # failures before auto-switching to fallback
+  lmstudio_base_url: "http://localhost:1234"  # LM Studio server URL (LAN/Tailscale for Pi→Mac)
+  lmstudio_model: "qwen3-vlm-7b"             # Model name as shown in LM Studio UI (case-sensitive)
 
 # Monitoring
 monitor:
