@@ -67,6 +67,7 @@ class MonitorConfig:
     image_width: int = 960
     image_height: int = 540
     silence_duration_minutes: int = 30
+    prompt_version: str = "1.0"
 
 
 @dataclass(frozen=True)

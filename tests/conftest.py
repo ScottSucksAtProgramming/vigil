@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from config import AppConfig, load_config
 from models import (
     AssessmentResult,
     Confidence,
@@ -60,3 +61,14 @@ def unsafe_assessment() -> AssessmentResult:
 def phase1_sensor_snapshot() -> SensorSnapshot:
     """Phase 1 snapshot — both sensor types disabled."""
     return SensorSnapshot(load_cells_enabled=False, vitals_enabled=False)
+
+
+# ---------------------------------------------------------------------------
+# Config fixture — loads the canonical fixture config; avoids re-parsing in every test
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def sample_config() -> AppConfig:
+    """Fully loaded AppConfig from tests/fixtures/config_valid.yaml."""
+    return load_config(str(FIXTURES_DIR / "config_valid.yaml"))

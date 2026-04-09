@@ -8,6 +8,7 @@ from models import (
     AlertType,
     AssessmentResult,
     Confidence,
+    DatasetEntry,
     PatientLocation,
     SensorSnapshot,
 )
@@ -123,3 +124,65 @@ def test_sensor_snapshot_is_frozen():
     snapshot = SensorSnapshot(load_cells_enabled=False, vitals_enabled=False)
     with pytest.raises(dataclasses.FrozenInstanceError):
         snapshot.load_cells_enabled = True  # type: ignore[misc]
+
+
+def _make_dataset_entry(**overrides) -> DatasetEntry:
+    defaults = dict(
+        timestamp="2026-04-09T03:00:00Z",
+        image_path="dataset/images/2026-04-09_03-00-00.jpg",
+        provider="openrouter",
+        model="qwen/qwen3-vl-32b-instruct",
+        prompt_version="1.0",
+        sensor_snapshot=SensorSnapshot(load_cells_enabled=False, vitals_enabled=False),
+        response_raw='{"safe": true, "confidence": "high"}',
+        assessment=AssessmentResult(
+            safe=True,
+            confidence=Confidence.HIGH,
+            reason="Patient resting.",
+            patient_location=PatientLocation.IN_BED,
+        ),
+        alert_fired=False,
+        api_latency_ms=1234.5,
+    )
+    return DatasetEntry(**{**defaults, **overrides})
+
+
+def test_dataset_entry_construction():
+    entry = _make_dataset_entry()
+    assert entry.timestamp == "2026-04-09T03:00:00Z"
+    assert entry.provider == "openrouter"
+    assert entry.prompt_version == "1.0"
+    assert entry.alert_fired is False
+    assert entry.api_latency_ms == 1234.5
+
+
+def test_dataset_entry_defaults():
+    entry = _make_dataset_entry()
+    assert entry.silence_active is False
+    assert entry.image_pruned is False
+    assert entry.label == ""
+
+
+def test_dataset_entry_label_values():
+    for label in ("correct", "false_positive", "false_negative"):
+        entry = _make_dataset_entry(label=label)
+        assert entry.label == label
+
+
+def test_dataset_entry_composes_assessment_result():
+    entry = _make_dataset_entry()
+    assert isinstance(entry.assessment, AssessmentResult)
+    assert entry.assessment.safe is True
+    assert entry.assessment.confidence == Confidence.HIGH
+
+
+def test_dataset_entry_composes_sensor_snapshot():
+    entry = _make_dataset_entry()
+    assert isinstance(entry.sensor_snapshot, SensorSnapshot)
+    assert entry.sensor_snapshot.load_cells_enabled is False
+
+
+def test_dataset_entry_is_frozen():
+    entry = _make_dataset_entry()
+    with pytest.raises(dataclasses.FrozenInstanceError):
+        entry.alert_fired = True  # type: ignore[misc]

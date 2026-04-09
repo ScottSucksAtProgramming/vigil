@@ -82,3 +82,27 @@ class SensorSnapshot:
 
     load_cells_enabled: bool
     vitals_enabled: bool
+
+
+@dataclass(frozen=True)
+class DatasetEntry:
+    """Complete record of one monitoring cycle, written as one line to dataset/log.jsonl.
+
+    Composes AssessmentResult and SensorSnapshot rather than flattening them —
+    dataset.py uses dataclasses.asdict() for JSON serialization.
+    label is empty string until manually reviewed (not JSON null, for easier filtering).
+    """
+
+    timestamp: str  # ISO 8601 UTC, e.g. "2026-04-09T03:00:00Z"
+    image_path: str  # relative path under dataset/images/
+    provider: str
+    model: str
+    prompt_version: str
+    sensor_snapshot: SensorSnapshot
+    response_raw: str  # raw JSON string from the VLM
+    assessment: AssessmentResult
+    alert_fired: bool
+    api_latency_ms: float
+    silence_active: bool = False
+    image_pruned: bool = False
+    label: str = ""  # "correct" | "false_positive" | "false_negative" | ""
