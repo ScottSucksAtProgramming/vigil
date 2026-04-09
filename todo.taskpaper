@@ -3,10 +3,10 @@ grandma-watcher:
 	Prep:
 		- Define domain types in models.py (AssessmentResult, Alert, SensorSnapshot) @done
 		- Write full config.yaml schema with defaults and comments @done
-		- Set up pyproject.toml with ruff, black, and pytest configured @na
-		- Create Makefile with single pre-merge check command @na
-		- Create tests/ scaffold with conftest.py and a fixture JPEG for mocking the camera @na
-		- Document local dev strategy in context/dev-environment.md @na
+		- Set up pyproject.toml with ruff, black, and pytest configured @done
+		- Create Makefile with single pre-merge check command @done
+		- Create tests/ scaffold with conftest.py and a fixture JPEG for mocking the camera @done
+		- Document local dev strategy in context/dev-environment.md @done
 
 	Milestone 1 - Core Monitor Loop:
 		- Implement models.py dataclasses @na

@@ -16,6 +16,7 @@ grandma-watcher/
   models.py
   protocols.py
   pyproject.toml
+  Makefile
   config.yaml
   monitor.py
   web_server.py
@@ -28,7 +29,10 @@ grandma-watcher/
   requirements.txt
   todo.taskpaper
   tests/
+    conftest.py
     fixtures/
+      config_valid.yaml
+      frame.jpeg
     test_models.py
     test_protocols.py
   setup/
@@ -59,6 +63,7 @@ grandma-watcher/
         2026-04-08-models-protocols.md
   context/
     conventions.md
+    dev-environment.md
     lessons.md
 ```
 

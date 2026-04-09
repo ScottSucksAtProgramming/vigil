@@ -1,0 +1,37 @@
+[Unit]
+Description=go2rtc - camera streaming for grandma-watcher
+Documentation=https://github.com/AlexxIT/go2rtc
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+
+# go2rtc binary location (download ARM64 release to /usr/local/bin/)
+ExecStart=/usr/local/bin/go2rtc -config /home/pi/eldercare/go2rtc.yaml
+
+WorkingDirectory=/home/pi/eldercare
+
+# Restart policy -- always restart on failure, with backoff
+Restart=on-failure
+RestartSec=5
+
+# Resource limits (Pi 5 8GB -- generous but bounded)
+MemoryMax=512M
+
+# Environment
+Environment=HOME=/home/pi
+
+# Ensure the pi user has access to video and audio devices
+# (user must be in video, audio groups: sudo usermod -aG video,audio pi)
+SupplementaryGroups=video audio
+
+# Logging to journald
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=go2rtc
+
+[Install]
+WantedBy=multi-user.target
