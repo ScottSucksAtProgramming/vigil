@@ -59,6 +59,8 @@ class ApiConfig:
     fallback_provider: str = "hyperbolic"
     fallback_model: str = "qwen/qwen2.5-vl-72b-instruct"
     consecutive_failure_threshold: int = 5
+    lmstudio_base_url: str = "http://localhost:1234"
+    lmstudio_model: str = "qwen3-vlm-7b"
 
 
 @dataclass(frozen=True)
@@ -91,6 +93,8 @@ class AlertsConfig:
     high_alert_pushover_priority: int = 1
     pushover_emergency_retry_seconds: int = 60
     pushover_emergency_expire_seconds: int = 3600
+    out_of_bed_frames_to_silence: int = 3
+    in_bed_frames_to_resume: int = 2
 
 
 @dataclass(frozen=True)
@@ -213,11 +217,16 @@ def _build_sensors(raw: dict[str, Any]) -> SensorsConfig:
 
 _REQUIRED_SECTIONS = ("api", "monitor", "alerts")
 
-_REQUIRED_SECRETS: list[tuple[str, Any]] = [
-    ("api.openrouter_api_key", lambda c: c.api.openrouter_api_key),
+_UNCONDITIONAL_REQUIRED_SECRETS: list[tuple[str, Any]] = [
     ("alerts.pushover_api_key", lambda c: c.alerts.pushover_api_key),
     ("alerts.pushover_user_key", lambda c: c.alerts.pushover_user_key),
 ]
+
+_PROVIDER_REQUIRED_SECRETS: dict[str, list[tuple[str, Any]]] = {
+    "openrouter": [
+        ("api.openrouter_api_key", lambda c: c.api.openrouter_api_key),
+    ],
+}
 
 
 def load_config(path: str = "config.yaml") -> AppConfig:
@@ -247,7 +256,9 @@ def load_config(path: str = "config.yaml") -> AppConfig:
         audio=_build_section(raw, "audio", AudioConfig),
     )
 
-    missing = [name for name, getter in _REQUIRED_SECRETS if not getter(config)]
+    secrets_to_check = list(_UNCONDITIONAL_REQUIRED_SECRETS)
+    secrets_to_check += _PROVIDER_REQUIRED_SECRETS.get(config.api.provider, [])
+    missing = [name for name, getter in secrets_to_check if not getter(config)]
     if missing:
         raise ValueError(f"Missing required config keys: {', '.join(missing)}")
 

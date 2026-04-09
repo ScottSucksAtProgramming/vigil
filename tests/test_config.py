@@ -192,3 +192,55 @@ def test_missing_required_section_raises(tmp_path):
     p = _write_config(tmp_path, data)
     with pytest.raises(ValueError, match="alerts"):
         load_config(str(p))
+
+
+def test_load_config_accepts_lmstudio_provider_without_openrouter_key(tmp_path):
+    """config.yaml with provider: lmstudio must not require openrouter_api_key."""
+    cfg_path = tmp_path / "config.yaml"
+    cfg_path.write_text(
+        """
+api:
+  provider: lmstudio
+  model: "qwen/qwen3-vl-32b-instruct"
+  openrouter_api_key: ""
+  lmstudio_base_url: "http://localhost:1234"
+  lmstudio_model: "qwen3-vlm-7b"
+monitor:
+  interval_seconds: 30
+  image_width: 960
+  image_height: 540
+  silence_duration_minutes: 30
+alerts:
+  pushover_api_key: "test-key-app"
+  pushover_user_key: "test-key-user"
+""",
+        encoding="utf-8",
+    )
+    config = load_config(str(cfg_path))
+    assert config.api.provider == "lmstudio"
+    assert config.api.lmstudio_base_url == "http://localhost:1234"
+    assert config.api.lmstudio_model == "qwen3-vlm-7b"
+
+
+def test_load_config_openrouter_still_requires_api_key(tmp_path):
+    """config.yaml with provider: openrouter must still require openrouter_api_key."""
+    cfg_path = tmp_path / "config.yaml"
+    cfg_path.write_text(
+        """
+api:
+  provider: openrouter
+  model: "qwen/qwen3-vl-32b-instruct"
+  openrouter_api_key: ""
+monitor:
+  interval_seconds: 30
+  image_width: 960
+  image_height: 540
+  silence_duration_minutes: 30
+alerts:
+  pushover_api_key: "test-key-app"
+  pushover_user_key: "test-key-user"
+""",
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="api.openrouter_api_key"):
+        load_config(str(cfg_path))
