@@ -17,7 +17,7 @@ grandma-watcher:
 		- Implement alert sliding window + cooldown logic in alert.py @done
 		- Implement patient_location state machine in alert.py (auto-silence / auto-resume) @done
 		- Implement PushoverChannel satisfying AlertChannel protocol @done
-		- Implement dataset.py (append DatasetEntry to log.jsonl, save image) @na
-		- Wire monitor.py core loop (fetch frame → assess → decide → alert → log) @na
-		- Integration test: full cycle with mocked camera, mocked OpenRouter, mocked Pushover @na
+		- Implement dataset.py (append DatasetEntry to log.jsonl, save image) @done
+		- Wire monitor.py core loop (fetch frame → assess → decide → alert → log) @done
+		- Integration test: full cycle with mocked camera, mocked OpenRouter, mocked Pushover @done
 		- Smoke test on Pi: verify real camera frame flows through and alert fires correctly @na
