@@ -10,9 +10,17 @@ from __future__ import annotations
 import time
 from collections import deque
 from collections.abc import Callable
+from enum import Enum
 
 from config import AlertsConfig
-from models import AlertType, AssessmentResult, Confidence
+from models import AlertType, AssessmentResult, Confidence, PatientLocation
+
+
+class SilenceEvent(Enum):
+    """Event returned by PatientLocationStateMachine.push() when silence state changes."""
+
+    ACTIVATE = "activate"
+    RESUME = "resume"
 
 
 def decide_alert_type(
@@ -133,3 +141,56 @@ class CooldownTimer:
     def cancel(self) -> None:
         """Cancel the active cooldown (used on silence activation)."""
         self._expires_at = None
+
+
+class PatientLocationStateMachine:
+    """Pure state machine for auto-silence activation and resume by patient location."""
+
+    def __init__(
+        self,
+        *,
+        out_of_bed_frames_to_silence: int,
+        in_bed_frames_to_resume: int,
+    ) -> None:
+        if out_of_bed_frames_to_silence < 1:
+            raise ValueError("out_of_bed_frames_to_silence must be >= 1")
+        if in_bed_frames_to_resume < 1:
+            raise ValueError("in_bed_frames_to_resume must be >= 1")
+        self._out_of_bed_threshold = out_of_bed_frames_to_silence
+        self._in_bed_threshold = in_bed_frames_to_resume
+        self._consecutive_out_of_bed = 0
+        self._consecutive_in_bed = 0
+        self._auto_silenced = False
+
+    @property
+    def auto_silenced(self) -> bool:
+        """True when auto-silence is currently active."""
+        return self._auto_silenced
+
+    def push(self, assessment: AssessmentResult) -> SilenceEvent | None:
+        """Process one frame. Returns a SilenceEvent if silence state changes, else None."""
+        location = assessment.patient_location
+
+        if location == PatientLocation.OUT_OF_BED:
+            self._consecutive_out_of_bed += 1
+            self._consecutive_in_bed = 0
+        elif location in (
+            PatientLocation.IN_BED,
+            PatientLocation.UNKNOWN,
+        ):
+            self._consecutive_out_of_bed = 0
+            self._consecutive_in_bed += 1
+        elif location == PatientLocation.BEING_ASSISTED_OUT:
+            self._consecutive_out_of_bed = 0
+            self._consecutive_in_bed = 0
+        else:
+            raise ValueError(f"Unexpected PatientLocation: {location!r}")
+        if not self._auto_silenced and self._consecutive_out_of_bed >= self._out_of_bed_threshold:
+            self._auto_silenced = True
+            self._consecutive_out_of_bed = 0
+            return SilenceEvent.ACTIVATE
+        if self._auto_silenced and self._consecutive_in_bed >= self._in_bed_threshold:
+            self._auto_silenced = False
+            self._consecutive_in_bed = 0
+            return SilenceEvent.RESUME
+        return None
