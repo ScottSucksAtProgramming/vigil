@@ -21,3 +21,5 @@ updated: 2026-04-07
 2026-04-08: TDD plan import sequencing — test files that import not-yet-implemented symbols must add imports incrementally per task, or the red phase fails for the wrong reason (ImportError vs missing implementation).
 2026-04-09: Dev environment doc belongs in context/ before Milestone 1 — clarifies Mac/Pi split, mocking strategy, and rsync deploy before any integration tests are written.
 2026-04-09: E501 in string literals (verbatim prompt constants) should be suppressed via per-file-ignores in pyproject.toml — never wrap prompt text to satisfy a linter; wrap the ignore instead.
+2026-04-09: Use `type(x) is bool` (not `isinstance`) to validate VLM boolean fields — bool subclasses int in Python, so isinstance(True, int) is True; only `type(x) is bool` rejects integers while accepting booleans.
+2026-04-09: In except clauses raising a different exception type, always use `from None` to suppress the exception chain — the new exception already carries all context, and chaining adds traceback noise in logs.
