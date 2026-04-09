@@ -16,7 +16,7 @@ grandma-watcher:
 		- Implement alert decision matrix in alert.py (PRD §6.3 table: safe/confidence → action) @done
 		- Implement alert sliding window + cooldown logic in alert.py @done
 		- Implement patient_location state machine in alert.py (auto-silence / auto-resume) @done
-		- Implement PushoverChannel satisfying AlertChannel protocol @na
+		- Implement PushoverChannel satisfying AlertChannel protocol @done
 		- Implement dataset.py (append DatasetEntry to log.jsonl, save image) @na
 		- Wire monitor.py core loop (fetch frame → assess → decide → alert → log) @na
 		- Integration test: full cycle with mocked camera, mocked OpenRouter, mocked Pushover @na

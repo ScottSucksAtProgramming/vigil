@@ -12,8 +12,17 @@ from collections import deque
 from collections.abc import Callable
 from enum import Enum
 
+import requests
+
 from config import AlertsConfig
-from models import AlertType, AssessmentResult, Confidence, PatientLocation
+from models import (
+    Alert,
+    AlertPriority,
+    AlertType,
+    AssessmentResult,
+    Confidence,
+    PatientLocation,
+)
 
 
 class SilenceEvent(Enum):
@@ -194,3 +203,63 @@ class PatientLocationStateMachine:
             self._consecutive_in_bed = 0
             return SilenceEvent.RESUME
         return None
+
+
+_PUSHOVER_API_URL = "https://api.pushover.net/1/messages.json"
+
+_ALERT_TITLES: dict[AlertType, str] = {
+    AlertType.UNSAFE_HIGH: "Grandma — Immediate Attention Needed",
+    AlertType.UNSAFE_MEDIUM: "Grandma Alert",
+    AlertType.SOFT_LOW_CONFIDENCE: "Grandma — Please Check",
+    AlertType.INFO: "Grandma — Info",
+    AlertType.SYSTEM: "System Alert",
+}
+
+
+class PushoverChannel:
+    """Delivers alerts to a single Pushover user via the Pushover HTTP API.
+
+    Satisfies AlertChannel structurally — no import from protocols.py needed.
+    Injectable: construct one instance per recipient (Mom, builder, etc.).
+
+    Raises on delivery failure (4xx/5xx HTTP). Does not swallow errors.
+    """
+
+    def __init__(
+        self,
+        *,
+        api_key: str,
+        user_key: str,
+        high_priority: int = 1,
+        emergency_retry_seconds: int = 60,
+        emergency_expire_seconds: int = 3600,
+    ) -> None:
+        self._api_key = api_key
+        self._user_key = user_key
+        self._high_priority = high_priority
+        self._emergency_retry_seconds = emergency_retry_seconds
+        self._emergency_expire_seconds = emergency_expire_seconds
+        self._session = requests.Session()
+
+    def send(self, alert: Alert) -> None:
+        """Send alert via Pushover HTTP API. Raises on delivery failure."""
+        priority = self._high_priority if alert.priority == AlertPriority.HIGH else 0
+        title = _ALERT_TITLES.get(alert.alert_type, "Grandma Alert")
+
+        payload: dict[str, str | int] = {
+            "token": self._api_key,
+            "user": self._user_key,
+            "message": alert.message,
+            "title": title,
+            "priority": priority,
+        }
+
+        if alert.url:
+            payload["url"] = alert.url
+
+        if priority == 2:
+            payload["retry"] = self._emergency_retry_seconds
+            payload["expire"] = self._emergency_expire_seconds
+
+        response = self._session.post(_PUSHOVER_API_URL, data=payload)
+        response.raise_for_status()
