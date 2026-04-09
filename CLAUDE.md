@@ -25,6 +25,7 @@ grandma-watcher/
   prompt_builder.py
   vlm_parser.py
   openrouter_provider.py
+  lmstudio_provider.py
   dataset.py
   smoke_test.py
   go2rtc.yaml
@@ -43,6 +44,7 @@ grandma-watcher/
     test_prompt_builder.py
     test_vlm_parser.py
     test_openrouter_provider.py
+    test_lmstudio_provider.py
   setup/
     install.sh
     tailscale_setup.sh
@@ -115,3 +117,4 @@ After completing a task, log any corrections, preferences, patterns, or discover
 2026-04-09: `dataclasses.asdict()` preserves Enum objects inside nested dataclasses — dataset JSONL serialization needs an explicit recursive `.value` conversion before `json.dumps()`.
 2026-04-09: Pushover HTTP API requires form-encoded POST (`data=` not `json=`); priority 2 (emergency) requires `retry` and `expire` params — omit them entirely for lower priorities.
 2026-04-09: Patch requests.Session.post (not requests.post) — instance method lookup falls through to class, so patching the class method intercepts already-constructed instances.
+2026-04-09: LMStudioProvider mirrors OpenRouterProvider structurally but omits the Authorization header and uses lmstudio_base_url + lmstudio_model — test explicitly that the OpenRouter model slug is NOT used.
