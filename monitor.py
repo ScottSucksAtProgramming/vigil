@@ -239,6 +239,11 @@ def _assessment_to_raw(assessment: AssessmentResult) -> str:
     return json.dumps(payload)
 
 
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+    raise SystemExit(main())
+
+
 def _utc_now_iso() -> str:
     """Return the current UTC time in ISO 8601 format with trailing Z."""
     return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
