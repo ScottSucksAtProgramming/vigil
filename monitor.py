@@ -57,25 +57,35 @@ def build_sensor_snapshot(config: AppConfig) -> SensorSnapshot:
     )
 
 
-def build_alert(alert_type: AlertType, assessment: AssessmentResult) -> Alert:
+def build_alert(
+    alert_type: AlertType,
+    assessment: AssessmentResult,
+    *,
+    dashboard_url: str = "",
+    timestamp: str = "",
+) -> Alert:
     """Create an Alert payload for the given alert type."""
+    url = f"{dashboard_url}/gallery#{timestamp}" if dashboard_url else ""
     if alert_type == AlertType.UNSAFE_HIGH:
         return Alert(
             alert_type=alert_type,
             priority=AlertPriority.HIGH,
             message=assessment.reason,
+            url=url,
         )
     if alert_type == AlertType.UNSAFE_MEDIUM:
         return Alert(
             alert_type=alert_type,
             priority=AlertPriority.NORMAL,
             message=assessment.reason,
+            url=url,
         )
     if alert_type == AlertType.SOFT_LOW_CONFIDENCE:
         return Alert(
             alert_type=alert_type,
             priority=AlertPriority.NORMAL,
             message="System uncertain — please check on grandma and label the frames.",
+            url=url,
         )
     raise ValueError(f"Unsupported alert type for monitor loop: {alert_type!r}")
 
@@ -127,7 +137,14 @@ def run_cycle(
 
     alert_fired = alert_type is not None
     if alert_type is not None:
-        alert_channel.send(build_alert(alert_type, assessment))
+        alert_channel.send(
+            build_alert(
+                alert_type,
+                assessment,
+                dashboard_url=config.web.dashboard_url,
+                timestamp=timestamp,
+            )
+        )
         if alert_type == AlertType.UNSAFE_MEDIUM:
             medium_cooldown.start()
         elif alert_type == AlertType.SOFT_LOW_CONFIDENCE:

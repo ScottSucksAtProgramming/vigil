@@ -514,3 +514,85 @@ alerts:
         monitor.run_forever = original_run_forever
 
     assert provider_types == ["LMStudioProvider"]
+
+
+@pytest.mark.parametrize(
+    "alert_type",
+    [AlertType.UNSAFE_HIGH, AlertType.UNSAFE_MEDIUM, AlertType.SOFT_LOW_CONFIDENCE],
+)
+def test_build_alert_with_dashboard_url_includes_gallery_link(alert_type):
+    from monitor import build_alert
+
+    assessment = _assessment(
+        safe=False,
+        confidence=Confidence.HIGH,
+        reason="Patient at risk.",
+        patient_location=PatientLocation.IN_BED,
+    )
+    alert = build_alert(
+        alert_type,
+        assessment,
+        dashboard_url="https://grandma.example.com",
+        timestamp="2026-04-10T12:00:00Z",
+    )
+    assert alert.url == "https://grandma.example.com/gallery#2026-04-10T12:00:00Z"
+
+
+@pytest.mark.parametrize(
+    "alert_type",
+    [AlertType.UNSAFE_HIGH, AlertType.UNSAFE_MEDIUM, AlertType.SOFT_LOW_CONFIDENCE],
+)
+def test_build_alert_without_dashboard_url_has_empty_url(alert_type):
+    from monitor import build_alert
+
+    assessment = _assessment(
+        safe=False,
+        confidence=Confidence.HIGH,
+        reason="Patient at risk.",
+        patient_location=PatientLocation.IN_BED,
+    )
+    alert = build_alert(
+        alert_type,
+        assessment,
+        dashboard_url="",
+        timestamp="2026-04-10T12:00:00Z",
+    )
+    assert alert.url == ""
+
+
+def test_run_cycle_high_unsafe_alert_includes_gallery_url_when_dashboard_url_set(
+    sample_config, tmp_path, fixture_frame_bytes
+):
+    from monitor import run_cycle
+
+    config = _app_config(sample_config, tmp_path)
+    config = dataclasses.replace(
+        config,
+        web=dataclasses.replace(config.web, dashboard_url="https://grandma.example.com"),
+    )
+    provider = _ProviderFake(
+        [
+            _assessment(
+                safe=False,
+                confidence=Confidence.HIGH,
+                reason="Patient needs help.",
+                patient_location=PatientLocation.IN_BED,
+            )
+        ]
+    )
+    channel = _AlertChannelFake()
+    state = _state(config)
+
+    run_cycle(
+        config,
+        provider,
+        channel,
+        fetch_frame=lambda _config: fixture_frame_bytes,
+        **state,
+    )
+
+    assert len(channel.alerts) == 1
+    alert = channel.alerts[0]
+    assert alert.url.startswith("https://grandma.example.com/gallery#")
+    # Timestamp portion is non-empty (ISO 8601 format)
+    assert len(alert.url) > len("https://grandma.example.com/gallery#")

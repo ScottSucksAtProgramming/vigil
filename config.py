@@ -109,6 +109,7 @@ class WebConfig:
     port: int = 8080
     gallery_max_items: int = 50
     talk_url: str = ""
+    dashboard_url: str = ""
 
 
 @dataclass(frozen=True)
