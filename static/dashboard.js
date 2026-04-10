@@ -210,3 +210,32 @@ function initModal() {
       submitLabel("false_alarm", this);
     });
 }
+
+// ── Report missed alert ────────────────────────────────────
+
+function initReportMissed() {
+  const btn = document.getElementById("report-btn");
+  if (!btn) return;
+  btn.addEventListener("click", () => {
+    btn.disabled = true;
+    fetch("/report-missed", { method: "POST" })
+      .then((r) => {
+        if (!r.ok) throw new Error("report failed");
+        flashButton(btn, "✓ Sent", 1500);
+      })
+      .catch(() => {
+        flashButton(btn, "Error — try again", 1500);
+      });
+  });
+}
+
+// ── Init ───────────────────────────────────────────────────
+
+document.addEventListener("DOMContentLoaded", () => {
+  initTheme();
+  initGallery();
+  initSilence();
+  initSilenceButton();
+  initModal();
+  initReportMissed();
+});
