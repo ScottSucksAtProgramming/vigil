@@ -52,7 +52,13 @@ def index() -> Response:
     return render_template("dashboard.html", talk_url=config.web.talk_url)
 ```
 
-Import `render_template` from Flask.
+Add `render_template` and `send_from_directory` to the existing Flask import line:
+
+```python
+from flask import Flask, Response, jsonify, render_template, request, send_from_directory, stream_with_context
+```
+
+Flask will look for `templates/dashboard.html` in the project root directory. The `templates/` folder must exist.
 
 ### GET /images/<filename>
 
@@ -64,7 +70,7 @@ def images(filename: str) -> Response:
     return send_from_directory(config.dataset.images_dir, filename)
 ```
 
-Import `send_from_directory` from Flask. `filename` is the bare filename only (e.g. `2026-04-10_03-42-00.jpg`), not a path — `send_from_directory` resolves it against `images_dir` and rejects path traversal automatically.
+The `<path:filename>` converter allows slashes in the parameter. `send_from_directory` uses `werkzeug.security.safe_join` internally, which rejects path traversal attempts (e.g. `../../etc/passwd`) and raises a 404. Files are resolved against `config.dataset.images_dir` only.
 
 ---
 
@@ -89,9 +95,10 @@ Jinja2 template. No inline JavaScript. All behaviour lives in `dashboard.js`.
   <section id="controls">
     <button id="silence-btn">          ← JS wires click handler
     {% if talk_url %}
-      <a href="{{ talk_url }}" target="_blank" rel="noopener">🎙 Talk</a>
+      <a id="talk-btn" href="{{ talk_url }}" target="_blank" rel="noopener">🎙 Talk</a>
     {% else %}
-      <button disabled title="Requires Tailscale — set talk_url in config.yaml">
+      <button id="talk-btn" class="btn btn--disabled" disabled
+              title="Requires Tailscale — set talk_url in config.yaml">
         🎙 Talk
       </button>
     {% endif %}
@@ -149,16 +156,7 @@ Tapping any row opens the modal with that entry's image and label buttons. The i
 
 ### Talk button
 
-```html
-{% if talk_url %}
-  <a id="talk-btn" href="{{ talk_url }}" target="_blank" rel="noopener">🎙 Talk</a>
-{% else %}
-  <button id="talk-btn" class="btn btn--disabled" disabled
-          title="Requires Tailscale — set talk_url in config.yaml">
-    🎙 Talk
-  </button>
-{% endif %}
-```
+The Structure section above is authoritative. CSS classes `btn` and `btn--disabled` are defined in `dashboard.css` (out of scope for this task); the button will be functionally correct before CSS is applied.
 
 ---
 
@@ -175,7 +173,38 @@ def test_dashboard_route_returns_html_with_key_elements(client):
         assert element_id in body
 ```
 
-One test for `GET /images/<filename>` — serves a file from `images_dir`, returns 404 for missing file.
+Two tests for `GET /images/<filename>`:
+
+```python
+def test_images_route_serves_file_from_images_dir(sample_config, tmp_path):
+    images_dir = tmp_path / "images"
+    images_dir.mkdir()
+    (images_dir / "frame.jpg").write_bytes(b"fake jpeg data")
+
+    patched_dataset = dataclasses.replace(sample_config.dataset, images_dir=str(images_dir))
+    cfg = dataclasses.replace(sample_config, dataset=patched_dataset)
+    app = create_app(cfg)
+    app.config["TESTING"] = True
+
+    with app.test_client() as c:
+        response = c.get("/images/frame.jpg")
+    assert response.status_code == 200
+    assert response.data == b"fake jpeg data"
+
+
+def test_images_route_returns_404_for_missing_file(sample_config, tmp_path):
+    images_dir = tmp_path / "images"
+    images_dir.mkdir()
+
+    patched_dataset = dataclasses.replace(sample_config.dataset, images_dir=str(images_dir))
+    cfg = dataclasses.replace(sample_config, dataset=patched_dataset)
+    app = create_app(cfg)
+    app.config["TESTING"] = True
+
+    with app.test_client() as c:
+        response = c.get("/images/nonexistent.jpg")
+    assert response.status_code == 404
+```
 
 ---
 
