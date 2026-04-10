@@ -62,13 +62,14 @@ DOMContentLoaded
   - Alert badge if `entry.alert_fired === true`.
   - If `entry.label` is non-empty, show it as a read-only tag.
 - Clicking a card opens the modal.
-- On fetch failure: render a single "Unable to load recent activity" message in `#gallery`.
+- On success with zero entries: render "No recent activity yet" in `#gallery`.
+- On fetch failure: render "Unable to load recent activity" in `#gallery`.
 
 ### `initSilence()`
 
 - Call `updateSilenceBadge()` immediately on load, then `setInterval(updateSilenceBadge, 15000)`.
 - `updateSilenceBadge()`: `fetch('/silence')`, update `#silence-badge` text:
-  - Active: `"🔕 Silenced — X min remaining"`
+  - Active: `"🔕 Silenced — X min remaining"` where `X = Math.ceil(data.remaining_seconds / 60)` (response returns seconds, badge shows minutes).
   - Inactive: `""` (empty, badge hidden)
 - On fetch failure: no UI change (don't disrupt the page).
 
@@ -128,8 +129,14 @@ Modal HTML already exists in `dashboard.html` (`#modal`, `#modal-sheet`, `#modal
   }
 }
 
-[data-theme="light"] { /* light overrides */ }
-[data-theme="dark"]  { /* dark overrides */  }
+[data-theme="light"] {
+  --bg: #ffffff; --bg-card: #f5f5f5; --text: #111111;
+  --text-muted: #666666; --border: #e0e0e0;
+}
+[data-theme="dark"] {
+  --bg: #0f0f0f; --bg-card: #1a1a1a; --text: #f0f0f0;
+  --text-muted: #999999; --border: #2a2a2a;
+}
 ```
 
 `--accent-safe`, `--accent-alert`, `--accent-ui` stay constant across themes (tested for contrast on both backgrounds).
@@ -189,7 +196,7 @@ All interactive elements: `min-height: 48px`, `min-width: 48px`. Buttons: `font-
 
 ### Theme toggle button
 
-Small icon button (`☀/🌙`) in the header, `background: none`, `border: none`, `font-size: 1.4rem`, tap target meets 48 px via padding.
+Small icon button in the header, `background: none`, `border: none`, `font-size: 1.4rem`, tap target meets 48 px via padding. Icon semantics: shows ☀ when the current theme is dark (click to switch to light); shows 🌙 when the current theme is light (click to switch to dark). Icon is set by `initTheme()` on load and updated by `toggleTheme()` on each click.
 
 ---
 
