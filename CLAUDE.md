@@ -28,6 +28,8 @@ grandma-watcher/
   lmstudio_provider.py
   dataset.py
   smoke_test.py
+  probe.py
+  probe_prompt.md
   go2rtc.yaml
   requirements.txt
   todo.taskpaper
@@ -45,6 +47,7 @@ grandma-watcher/
     test_vlm_parser.py
     test_openrouter_provider.py
     test_lmstudio_provider.py
+    test_probe.py
   setup/
     install.sh
     tailscale_setup.sh
