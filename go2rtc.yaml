@@ -1,9 +1,9 @@
 # go2rtc configuration for grandma-watcher
 # Raspberry Pi 5 + Arducam IMX708 NoIR (CSI) + USB audio
 #
-# IMPORTANT: Pi 5 uses the libav codec backend, which requires --libav-format
-# to be specified explicitly. Without it, rpicam-vid cannot deduce the output
-# container format when writing to stdout.
+# IMPORTANT: Pi 5 standard rpicam-apps packages do not include the libav H.264
+# codec. Using --codec mjpeg instead, which is universally supported and works
+# well for the go2rtc frame.jpeg API endpoint.
 #
 # Camera is the SOLE owner of the CSI device. monitor.py pulls snapshots via
 # the HTTP API (GET /api/frame.jpeg?src=grandma) -- it never opens the camera
@@ -11,7 +11,7 @@
 
 streams:
   grandma:
-    - exec:rpicam-vid -t 0 --width 960 --height 540 --framerate 15 --inline --nopreview --libav-format h264 -o -
+    - exec:rpicam-vid -t 0 --width 960 --height 540 --framerate 15 --inline --nopreview --codec mjpeg -q 80 -o -
     # Audio input: USB mic via UGREEN adapter (ALSA device)
     # Run `arecord -l` on the Pi to confirm the card name/number.
     # Typical: plughw:CARD=Device,DEV=0  or  plughw:1,0
