@@ -136,6 +136,22 @@ def test_gallery_respects_max_items_limit(sample_config, tmp_path):
     assert len(data) == 2
 
 
+def test_gallery_excludes_entries_without_image(gallery_client):
+    """GET /gallery omits entries where image_path is empty (poll-only cycles)."""
+    client, log_file = gallery_client
+    lines = [
+        json.dumps(_make_entry(timestamp="2026-04-09T01:00:00Z", image_path="")),
+        json.dumps(_make_entry(timestamp="2026-04-09T02:00:00Z")),
+        json.dumps(_make_entry(timestamp="2026-04-09T03:00:00Z", image_path="")),
+    ]
+    log_file.write_text("\n".join(lines) + "\n")
+
+    data = client.get("/gallery").get_json()
+
+    assert len(data) == 1
+    assert data[0]["timestamp"] == "2026-04-09T02:00:00Z"
+
+
 def test_gallery_skips_malformed_lines(gallery_client):
     """GET /gallery silently skips lines that are not valid JSON."""
     client, log_file = gallery_client

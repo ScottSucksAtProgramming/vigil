@@ -116,6 +116,7 @@ def create_app(config: AppConfig) -> Flask:
                         entries.append(json.loads(line))
                     except json.JSONDecodeError:
                         logger.warning("Skipping malformed log line: %s", line[:80])
+            entries = [e for e in entries if e.get("image_path")]
             entries = list(reversed(entries))
 
         return jsonify(entries)
