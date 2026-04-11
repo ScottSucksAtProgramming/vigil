@@ -33,6 +33,10 @@ api:
   # Switch to fallback after this many consecutive failures (~2.5 min at 30s intervals)
   consecutive_failure_threshold: 5
 
+  # LM Studio local inference (provider: lmstudio)
+  lmstudio_base_url: "http://localhost:1234"
+  lmstudio_model: "qwen3-vlm-7b"
+
 # --- Monitoring -----------------------------------------------------------------
 monitor:
   # Seconds between safety assessments
