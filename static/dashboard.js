@@ -3,6 +3,13 @@
 
 // ── Stream ─────────────────────────────────────────────────
 
+const STREAM_RECONNECT_BASE_MS = 3_000;
+const STREAM_RECONNECT_MAX_MS = 60_000;
+const STREAM_PERIODIC_MS = 5 * 60 * 1_000; // periodic stall safety net
+
+let _streamReconnectDelay = STREAM_RECONNECT_BASE_MS;
+let _streamReconnectTimer = null;
+
 function reloadStream() {
   const img = document.getElementById("stream-img");
   if (!img) return;
@@ -14,15 +21,31 @@ function initStream() {
   const img = document.getElementById("stream-img");
   if (!img) return;
 
-  // Reconnect after stream drops (network error, server restart, etc.)
+  // Reconnect after stream drops — exponential backoff up to 60 s
   img.addEventListener("error", () => {
-    setTimeout(reloadStream, 3000);
+    clearTimeout(_streamReconnectTimer);
+    _streamReconnectTimer = setTimeout(() => {
+      _streamReconnectDelay = Math.min(
+        _streamReconnectDelay * 2,
+        STREAM_RECONNECT_MAX_MS,
+      );
+      reloadStream();
+    }, _streamReconnectDelay);
+  });
+
+  // Reset backoff when a connection succeeds
+  img.addEventListener("load", () => {
+    _streamReconnectDelay = STREAM_RECONNECT_BASE_MS;
+    clearTimeout(_streamReconnectTimer);
   });
 
   // Reconnect when iOS/Android returns the page to the foreground
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") reloadStream();
   });
+
+  // Periodic forced reconnect — catches silent MJPEG stalls
+  setInterval(reloadStream, STREAM_PERIODIC_MS);
 }
 
 // ── Theme ──────────────────────────────────────────────────
