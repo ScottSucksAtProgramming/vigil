@@ -69,9 +69,10 @@ except Exception:
 if [ -n "$SYSTEM_PING_URL" ]; then
   PING_SCRIPT="$SCRIPT_DIR/healthcheck_ping.sh"
   CRON_ENTRY="*/5 * * * * HEALTHCHECKS_SYSTEM_URL=${SYSTEM_PING_URL} ${PING_SCRIPT}"
-  # Add idempotently: remove any existing entry for healthcheck_ping.sh, then append
-  ( crontab -l -u "$SERVICE_USER" 2>/dev/null | grep -v "healthcheck_ping.sh"; echo "$CRON_ENTRY" ) \
-    | crontab -u "$SERVICE_USER" -
+  # Add idempotently: remove any existing entry for healthcheck_ping.sh, then append.
+  # Use sudo -u so the entry lands in the service user's crontab, not root's.
+  ( sudo -u "$SERVICE_USER" crontab -l 2>/dev/null | grep -v "healthcheck_ping.sh"; echo "$CRON_ENTRY" ) \
+    | sudo -u "$SERVICE_USER" crontab -
   echo "Installed cron heartbeat: pings Healthchecks.io every 5 minutes."
 else
   echo "healthchecks.system_ping_url not set — skipping cron heartbeat."
