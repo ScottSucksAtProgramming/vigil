@@ -2,6 +2,7 @@ import dataclasses
 import json
 import logging
 from collections import deque
+from unittest.mock import patch
 
 import pytest
 import requests
@@ -507,8 +508,9 @@ alerts:
     monitor.load_config = fake_load_config
     monitor.run_forever = fake_run_forever
     try:
-        with pytest.raises(StopLoop):
-            monitor.main()
+        with patch("lmstudio_provider.LMStudioProvider.load_model"):
+            with pytest.raises(StopLoop):
+                monitor.main()
     finally:
         monitor.load_config = original_load_config
         monitor.run_forever = original_run_forever
@@ -596,3 +598,65 @@ def test_run_cycle_high_unsafe_alert_includes_gallery_url_when_dashboard_url_set
     assert alert.url.startswith("https://grandma.example.com/gallery#")
     # Timestamp portion is non-empty (ISO 8601 format)
     assert len(alert.url) > len("https://grandma.example.com/gallery#")
+
+
+def test_run_cycle_returns_true_when_save_image_true(
+    sample_config, tmp_path, fixture_frame_bytes
+):
+    from monitor import run_cycle
+
+    config = _app_config(sample_config, tmp_path)
+    provider = _ProviderFake(
+        [_assessment(safe=True, confidence=Confidence.HIGH, reason="Safe.", patient_location=PatientLocation.IN_BED)]
+    )
+    state = _state(config)
+
+    result = run_cycle(
+        config, provider, _AlertChannelFake(),
+        fetch_frame=lambda _: fixture_frame_bytes, save_image=True, **state,
+    )
+
+    assert result is True
+    assert (tmp_path / "dataset" / "images").exists()
+
+
+def test_run_cycle_returns_false_when_save_image_false_and_no_alert(
+    sample_config, tmp_path, fixture_frame_bytes
+):
+    from monitor import run_cycle
+
+    config = _app_config(sample_config, tmp_path)
+    provider = _ProviderFake(
+        [_assessment(safe=True, confidence=Confidence.HIGH, reason="Safe.", patient_location=PatientLocation.IN_BED)]
+    )
+    state = _state(config)
+
+    result = run_cycle(
+        config, provider, _AlertChannelFake(),
+        fetch_frame=lambda _: fixture_frame_bytes, save_image=False, **state,
+    )
+
+    assert result is False
+    assert not (tmp_path / "dataset" / "images").exists()
+
+
+def test_run_cycle_saves_image_when_alert_fires_even_if_save_image_false(
+    sample_config, tmp_path, fixture_frame_bytes
+):
+    from monitor import run_cycle
+
+    config = _app_config(sample_config, tmp_path)
+    provider = _ProviderFake(
+        [_assessment(safe=False, confidence=Confidence.HIGH, reason="Patient at risk.", patient_location=PatientLocation.IN_BED)]
+    )
+    channel = _AlertChannelFake()
+    state = _state(config)
+
+    result = run_cycle(
+        config, provider, channel,
+        fetch_frame=lambda _: fixture_frame_bytes, save_image=False, **state,
+    )
+
+    assert result is True
+    assert len(channel.alerts) == 1
+    assert (tmp_path / "dataset" / "images").exists()

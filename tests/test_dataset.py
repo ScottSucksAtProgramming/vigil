@@ -122,3 +122,27 @@ def test_record_dataset_entry_writes_image_and_log_row(
     payload = json.loads((tmp_path / "dataset" / "log.jsonl").read_text(encoding="utf-8"))
     assert payload["image_path"] == "images/2026-04-09_03-00-00.jpg"
     assert payload["assessment"]["reason"] == "Patient resting in bed."
+
+
+def test_record_dataset_entry_skip_image_writes_log_only(
+    sample_config, tmp_path, fixture_frame_bytes
+):
+    from dataset import record_dataset_entry
+
+    config = _app_config(sample_config, tmp_path)
+    entry = _dataset_entry()
+
+    saved_entry = record_dataset_entry(
+        config=config,
+        timestamp="2026-04-09T03:00:00Z",
+        frame_bytes=fixture_frame_bytes,
+        entry=entry,
+        save_image=False,
+    )
+
+    assert saved_entry.image_path == ""
+    assert not (tmp_path / "dataset" / "images").exists()
+
+    payload = json.loads((tmp_path / "dataset" / "log.jsonl").read_text(encoding="utf-8"))
+    assert payload["image_path"] == ""
+    assert payload["assessment"]["reason"] == "Patient resting in bed."

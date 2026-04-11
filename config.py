@@ -31,6 +31,9 @@ class DatasetConfig:
     log_file: str = ""  # derived from base_dir by _build_dataset if empty
     checkin_log_file: str = ""  # derived from base_dir by _build_dataset if empty
     max_disk_gb: int = 50
+    # Save an image every N minutes during normal operation.
+    # Alert-triggering frames are always saved regardless of this interval.
+    image_interval_minutes: int = 5
     retention: RetentionConfig = field(default_factory=RetentionConfig)
 
 

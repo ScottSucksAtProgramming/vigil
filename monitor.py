@@ -100,8 +100,9 @@ def run_cycle(
     low_cooldown: CooldownTimer,
     location_state: PatientLocationStateMachine,
     fetch_frame: Callable[[AppConfig], bytes] = fetch_snapshot,
-) -> None:
-    """Run one monitoring cycle."""
+    save_image: bool = True,
+) -> bool:
+    """Run one monitoring cycle. Returns True if a frame image was saved."""
     timestamp = _utc_now_iso()
     frame = fetch_frame(config)
     sensor_snapshot = build_sensor_snapshot(config)
@@ -163,12 +164,15 @@ def run_cycle(
         api_latency_ms=0.0,
         silence_active=silence_active,
     )
+    actually_save = save_image or alert_fired
     record_dataset_entry(
         config=config,
         timestamp=timestamp,
         frame_bytes=frame,
         entry=entry,
+        save_image=actually_save,
     )
+    return actually_save
 
 
 def run_forever(
@@ -189,10 +193,14 @@ def run_forever(
 
     consecutive_failures = 0
     builder_alerted = False
+    last_image_saved_at: float = 0.0  # monotonic seconds; 0 = never saved
+    image_interval_seconds = config.dataset.image_interval_minutes * 60
 
     while True:
         try:
-            run_cycle(
+            now = time.monotonic()
+            save_image = (now - last_image_saved_at) >= image_interval_seconds
+            image_saved = run_cycle(
                 config,
                 provider,
                 alert_channel,
@@ -200,7 +208,10 @@ def run_forever(
                 medium_cooldown=medium_cooldown,
                 low_cooldown=low_cooldown,
                 location_state=location_state,
+                save_image=save_image,
             )
+            if image_saved:
+                last_image_saved_at = time.monotonic()
             consecutive_failures = 0
             builder_alerted = False
         except Exception:

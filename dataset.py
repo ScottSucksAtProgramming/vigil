@@ -49,12 +49,19 @@ def record_dataset_entry(
     timestamp: str,
     frame_bytes: bytes,
     entry: DatasetEntry,
+    *,
+    save_image: bool = True,
 ) -> DatasetEntry:
-    """Save the frame image, append the log row, and return the persisted entry."""
-    image_path = save_frame_image(config=config, timestamp=timestamp, frame_bytes=frame_bytes)
-    saved_entry = dataclasses.replace(entry, image_path=image_path)
-    append_log_entry(config, saved_entry)
-    return saved_entry
+    """Append the log row and optionally save the frame image.
+
+    When save_image=False the JSONL entry is written with image_path="" so
+    the assessment is always logged, but no JPEG is written to disk.
+    """
+    if save_image:
+        image_path = save_frame_image(config=config, timestamp=timestamp, frame_bytes=frame_bytes)
+        entry = dataclasses.replace(entry, image_path=image_path)
+    append_log_entry(config, entry)
+    return entry
 
 
 def _json_safe(value: Any) -> Any:

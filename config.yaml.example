@@ -111,6 +111,10 @@ dataset:
   # Warn when dataset disk usage exceeds this (GB)
   max_disk_gb: 50
 
+  # Save a frame image every N minutes during normal operation.
+  # Frames that trigger an alert are always saved regardless of this interval.
+  image_interval_minutes: 5
+
   retention:
     # Alert-triggering frames: keep forever (fine-tuning value)
     alert_frames: "forever"
