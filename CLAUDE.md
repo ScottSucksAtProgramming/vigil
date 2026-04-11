@@ -12,6 +12,7 @@ grandma-watcher/
   CLAUDE.md
   INDEX.md
   PRD.md
+  README.md
   config.py
   models.py
   protocols.py
