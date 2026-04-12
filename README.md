@@ -188,9 +188,10 @@ alerts:
 
 ## Screenshots
 
-<!-- SCREENSHOT_DASHBOARD: <img src="docs/images/dashboard.png" alt="Dashboard on phone"> -->
-<!-- SCREENSHOT_ALERT: <img src="docs/images/alert.png" alt="Pushover alert notification"> -->
-<!-- SCREENSHOT_GALLERY: <img src="docs/images/gallery.png" alt="Gallery with safe/unsafe badges"> -->
+<p align="center"><img src="docs/images/dashboard.jpg" alt="Vigil dashboard on iPhone — live feed, silence button, talk button, and recent activity gallery with AI verdicts"></p>
+
+<p align="center"><img src="docs/images/alert.jpg" alt="Pushover time-sensitive alert — Grandma Please Check"></p>
+<p align="center"><img src="docs/images/gallery.jpg" alt="Gallery detail view with Real Issue and False Alarm labeling buttons"></p>
 
 ---
 
