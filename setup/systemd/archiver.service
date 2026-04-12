@@ -1,0 +1,12 @@
+[Unit]
+Description=Vigil dataset archiver - encrypts labeled frames older than threshold
+After=network.target
+
+[Service]
+Type=oneshot
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/eldercare
+ExecStart=/home/pi/eldercare/.venv/bin/python /home/pi/eldercare/archiver.py
+StandardOutput=journal
+StandardError=journal

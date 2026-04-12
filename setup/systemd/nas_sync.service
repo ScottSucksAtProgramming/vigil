@@ -1,0 +1,12 @@
+[Unit]
+Description=Vigil NAS sync - rsync encrypted archive to TrueNAS over Tailscale
+After=network.target tailscaled.service
+
+[Service]
+Type=oneshot
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/eldercare
+ExecStart=/home/pi/eldercare/.venv/bin/python /home/pi/eldercare/nas_sync.py
+StandardOutput=journal
+StandardError=journal
