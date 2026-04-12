@@ -1,4 +1,4 @@
-"""Typed configuration dataclasses for grandma-watcher.
+"""Typed configuration dataclasses for vigil.
 
 Loaded once at startup by load_config() and passed as a dependency.
 Never re-read mid-run, never accessed via a global.

@@ -6,7 +6,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-ENV_FILE="/etc/grandma-watcher/cloudflare.env"
+ENV_FILE="/etc/vigil/cloudflare.env"
 SERVICE_SRC="$SCRIPT_DIR/systemd/cloudflared.service"
 SERVICE_DEST="/etc/systemd/system/cloudflared.service"
 CLOUDFLARED_BIN="/usr/local/bin/cloudflared"
@@ -55,7 +55,7 @@ if [ ! -x "$CLOUDFLARED_BIN" ]; then
 fi
 
 # --- 3. Write tunnel token to EnvironmentFile ------------------------------------
-mkdir -p /etc/grandma-watcher
+mkdir -p /etc/vigil
 printf 'CLOUDFLARE_TUNNEL_TOKEN=%s\n' "$TOKEN" > "$ENV_FILE"
 chmod 600 "$ENV_FILE"
 echo "Wrote tunnel token to $ENV_FILE (mode 600)."

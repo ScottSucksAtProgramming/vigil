@@ -1,9 +1,8 @@
-# Grandma Watcher
+# Vigil
 
 > Passive AI monitoring for the people who need it most.
 
-<!-- LOGO: <p align="center"><img src="docs/images/logo.png" alt="Grandma Watcher" width="200"></p> -->
-<!-- BANNER: <p align="center"><img src="docs/images/banner.png" alt="Grandma Watcher banner"></p> -->
+<p align="center"><img src="docs/images/banner.png" alt="Vigil"></p>
 
 ![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue)
 ![Platform](https://img.shields.io/badge/Platform-Raspberry%20Pi%205-c51a4a)
@@ -18,7 +17,7 @@ A 97-year-old woman with Parkinson's disease is bed-bound and largely non-verbal
 
 Her daughter is the full-time live-in caregiver. This means constant vigilance: checking every few minutes, interrupted sleep, and the compounding exhaustion of not being able to look away for long. The builder is a paramedic and developer who lives remotely and cannot be physically present.
 
-**Grandma Watcher is the solution.** A passive AI monitoring system that watches 24/7, alerts the caregiver when something looks wrong, and lets her check in from any room — or any location — without any specialized hardware or technical knowledge.
+**Vigil is the solution.** A passive AI monitoring system that watches 24/7, alerts the caregiver when something looks wrong, and lets her check in from any room — or any location — without any specialized hardware or technical knowledge.
 
 ---
 
@@ -136,7 +135,7 @@ graph TD
 ## Project Structure
 
 ```
-grandma-watcher/
+vigil/
   monitor.py          # Main loop: capture → assess → alert → log
   web_server.py       # Flask dashboard and all HTTP routes
   alert.py            # Sliding window, cooldown, Pushover channel

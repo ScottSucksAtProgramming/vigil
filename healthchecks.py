@@ -1,4 +1,4 @@
-"""Healthchecks.io dead-man's-switch integration for grandma-watcher."""
+"""Healthchecks.io dead-man's-switch integration for vigil."""
 
 from __future__ import annotations
 

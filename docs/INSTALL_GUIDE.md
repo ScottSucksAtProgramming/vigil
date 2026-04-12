@@ -1,6 +1,6 @@
 # Raspberry Pi Setup Guide
 
-> Step-by-step guide for setting up a headless Raspberry Pi 5 for the grandma-watcher project. This guide assumes you're using a Mac and want key-based SSH from first boot.
+> Step-by-step guide for setting up a headless Raspberry Pi 5 for Vigil. This guide assumes you're using a Mac and want key-based SSH from first boot.
 
 ---
 
@@ -54,7 +54,7 @@ chmod 644 ~/.ssh/id_ed25519_pi5.pub
 ## Step 3: Store Private Key in 1Password
 
 1. Open **1Password** → Click the **+** button → Select **SSH Key**
-2. Title: `Raspberry Pi 5 - grandma-watcher`
+2. Title: `Raspberry Pi 5 - vigil`
 3. Account/Username: `pi` (or your chosen username)
 4. Click **Add Private Key**
 5. Select **Choose File** and pick `~/.ssh/id_ed25519_pi5`
@@ -197,19 +197,19 @@ sudo apt autoremove -y
 
 ---
 
-## Step 10: Clone the grandma-watcher Repo
+## Step 10: Clone the vigil Repo
 
 ```bash
 # Create projects directory
 mkdir -p ~/projects && cd ~/projects
 
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/grandma-watcher.git
+git clone https://github.com/YOUR_USERNAME/vigil.git
 
 # Or if using SSH:
-git clone git@github.com:YOUR_USERNAME/grandma-watcher.git
+git clone git@github.com:YOUR_USERNAME/vigil.git
 
-cd grandma-watcher
+cd vigil
 ```
 
 ---
@@ -245,7 +245,7 @@ sudo raspi-config
 
 ```bash
 # Handled by setup/install.sh — review go2rtc.yaml for camera settings
-cd ~/projects/grandma-watcher
+cd ~/projects/vigil
 bash setup/install.sh
 ```
 

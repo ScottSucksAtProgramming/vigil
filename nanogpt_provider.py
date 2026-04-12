@@ -1,4 +1,4 @@
-"""NanoGPT VLM provider for grandma-watcher.
+"""NanoGPT VLM provider for vigil.
 
 Sends JPEG frames to the NanoGPT chat completions API (OpenAI-compatible)
 and returns a validated AssessmentResult. Satisfies VLMProvider structurally

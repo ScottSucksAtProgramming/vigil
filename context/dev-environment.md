@@ -1,11 +1,11 @@
 ---
-title: "grandma-watcher Dev Environment"
+title: "vigil Dev Environment"
 summary: "Local development strategy — what runs on Mac, what runs on Pi, and how to test without hardware"
 created: 2026-04-09
 updated: 2026-04-09
 ---
 
-# grandma-watcher Dev Environment
+# vigil Dev Environment
 
 ## The Split
 
@@ -24,7 +24,7 @@ All unit and integration tests must pass on Mac without Pi hardware. If a test r
 
 ```bash
 # Clone and install deps
-cd grandma-watcher
+cd vigil
 pip install -r requirements.txt
 
 # Copy example config — edit with real API keys for smoke tests only
@@ -86,7 +86,7 @@ No automated deploy pipeline yet. Sync changed files with `rsync`:
 
 ```bash
 rsync -av --exclude='.git' --exclude='dataset/' --exclude='config.yaml' \
-  /path/to/grandma-watcher/ pi@<tailscale-ip>:~/grandma-watcher/
+  /path/to/vigil/ pi@<tailscale-ip>:~/vigil/
 ```
 
 Then restart the affected service:
@@ -102,7 +102,7 @@ ssh pi@<tailscale-ip> "sudo systemctl restart monitor"
 
 ```bash
 ssh pi@<tailscale-ip>
-cd ~/grandma-watcher
+cd ~/vigil
 python smoke_test.py
 ```
 

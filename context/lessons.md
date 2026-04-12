@@ -1,11 +1,11 @@
 ---
-title: "grandma-watcher Lessons Learned"
+title: "vigil Lessons Learned"
 summary: "Running log of corrections, preferences, and discoveries for the eldercare monitor project"
 created: 2026-04-07
 updated: 2026-04-07
 ---
 
-# grandma-watcher Lessons Learned
+# vigil Lessons Learned
 
 <!-- Append dated one-liners below. When 3+ related lessons accumulate on a topic, extract into a dedicated context file. -->
 
@@ -44,7 +44,7 @@ updated: 2026-04-07
 2026-04-10: CSS `#modal-close` overriding `min-height: auto` from a base button rule breaks the 48px tap target — close buttons need explicit `min-height: var(--tap-height)` even when styled differently from other buttons.
 2026-04-10: `flashButton()` re-enables the button internally after the delay — a `finally` block that also re-enables is dead code (idempotent but misleading); only use `finally` for re-enable when there is no `flashButton` call in both branches.
 2026-04-10: `build_alert()` keyword-only args (`*`) keep the call site readable and prevent accidental positional mismatches when adding optional plumbing like `dashboard_url` and `timestamp` — frozen dataclass fields picked up automatically by `_build_section` when added with a default.
-2026-04-10: Cloudflare Tunnel setup — store the tunnel token in EnvironmentFile=/etc/grandma-watcher/cloudflare.env (mode 600) so it stays out of the service unit (which is checked into git); systemd reads EnvironmentFile as root before dropping to the service user, so root-owned 600 works fine.
+2026-04-10: Cloudflare Tunnel setup — store the tunnel token in EnvironmentFile=/etc/vigil/cloudflare.env (mode 600) so it stays out of the service unit (which is checked into git); systemd reads EnvironmentFile as root before dropping to the service user, so root-owned 600 works fine.
 2026-04-10: Service unit templates hardcode User=pi but the Pi username is eyespy — setup scripts must substitute $SUDO_USER for "pi" via sed when copying .service files to /etc/systemd/system/; go2rtc.service and web_server.service will need the same treatment in install.sh.
 2026-04-11: `crontab -u <user>` in install.sh requires root and writes to a named user's crontab — but when the install runs as root via sudo, use `sudo -u "$SERVICE_USER" crontab` instead, so the entry lands in the correct user's crontab rather than root's.
 2026-04-11: When mocking `time.monotonic` in `run_forever` tests with a finite iterator, the iterator runs out because multiple monotonic calls occur per iteration (init + `now` + outage check + `last_successful_ping_at` on success) — use `sustained_outage_minutes=0` in the test config instead, which removes the need to mock time entirely.

@@ -1,4 +1,4 @@
-# grandma-watcher Index
+# vigil Index
 
 Quick-reference for finding content in this directory. For conventions, see `context/conventions.md`. For full architecture and hardware decisions, see `PRD.md`.
 

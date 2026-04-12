@@ -1,4 +1,4 @@
-"""Core monitoring loop for grandma-watcher."""
+"""Core monitoring loop for vigil."""
 
 from __future__ import annotations
 

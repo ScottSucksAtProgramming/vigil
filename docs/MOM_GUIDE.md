@@ -1,6 +1,6 @@
-# Grandma Monitor — Mom's Guide
+# Vigil — Mom's Guide
 
-This guide covers everything you need to use the Grandma Monitor from your phone.
+This guide covers everything you need to use the Vigil from your phone.
 
 ---
 

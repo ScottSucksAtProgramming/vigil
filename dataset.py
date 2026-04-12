@@ -1,4 +1,4 @@
-"""Dataset persistence helpers for grandma-watcher.
+"""Dataset persistence helpers for vigil.
 
 Phase 1 scope: save frame JPEGs and append DatasetEntry JSONL rows.
 """

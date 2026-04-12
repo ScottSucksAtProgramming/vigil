@@ -1,4 +1,4 @@
-"""Developer probe tool for grandma-watcher.
+"""Developer probe tool for vigil.
 
 Sends a freeform prompt + JPEG frame to the configured VLM provider and
 prints the raw model response. Bypasses the production JSON schema enforced

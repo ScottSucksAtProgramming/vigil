@@ -17,7 +17,7 @@
 - `@done` — marks complete; excluded from `na next`
 - `@priority(1-5)` — urgency; `na tagged @priority>=3` filters by level
 
-## Workflow for grandma-watcher
+## Workflow for vigil
 
 Tasks in `todo.taskpaper` that are ready to work on should be tagged `@na`.
 Tasks that are blocked or future should have no `@na` tag.

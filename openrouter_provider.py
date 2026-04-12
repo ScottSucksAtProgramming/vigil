@@ -1,4 +1,4 @@
-"""OpenRouter VLM provider for grandma-watcher.
+"""OpenRouter VLM provider for vigil.
 
 Sends JPEG frames to the OpenRouter chat completions API and returns a
 validated AssessmentResult. Satisfies VLMProvider structurally — no import

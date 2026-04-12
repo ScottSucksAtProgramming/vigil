@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# grandma-watcher full system setup for Raspberry Pi 5 (Raspberry Pi OS Lite 64-bit)
+# vigil full system setup for Raspberry Pi 5 (Raspberry Pi OS Lite 64-bit)
 # Run as root or with sudo from the project root directory.
 set -euo pipefail
 

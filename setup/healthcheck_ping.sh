@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# OS-level Healthchecks.io heartbeat for grandma-watcher.
+# OS-level Healthchecks.io heartbeat for vigil.
 #
 # Pings the system-level Healthchecks.io check every time it is called.
 # Cron calls this every 5 minutes, independent of the Python application.

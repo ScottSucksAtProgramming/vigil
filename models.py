@@ -1,4 +1,4 @@
-"""Domain types for grandma-watcher.
+"""Domain types for vigil.
 
 This module contains all enums and dataclasses exchanged between components.
 It has no imports from the application and no logic — only data shapes.

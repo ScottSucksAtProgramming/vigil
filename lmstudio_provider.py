@@ -1,4 +1,4 @@
-"""LM Studio local VLM provider for grandma-watcher.
+"""LM Studio local VLM provider for vigil.
 
 Sends JPEG frames to a locally-running LM Studio instance via its
 OpenAI-compatible chat completions endpoint. No authentication required.

@@ -1,4 +1,4 @@
-# grandma-watcher — AI-Powered Eldercare Monitor
+# vigil — AI-Powered Eldercare Monitor
 
 ## Purpose
 
@@ -7,7 +7,7 @@ Passive, AI-powered 24/7 monitoring system for a 97-year-old bed-bound patient w
 ## Tree
 
 ```
-grandma-watcher/
+vigil/
   .gitignore
   CLAUDE.md
   INDEX.md
@@ -121,7 +121,7 @@ grandma-watcher/
 
 ## Rules
 
-1. On session start within `grandma-watcher/`, read this file, then `INDEX.md`, then `PRD.md` for full architecture context. Check `todo.taskpaper` for current next actions.
+1. On session start within `vigil/`, read this file, then `INDEX.md`, then `PRD.md` for full architecture context. Check `todo.taskpaper` for current next actions.
 2. Primary development target is Raspberry Pi 5 (ARM64, Raspberry Pi OS Lite 64-bit). Code must run headless.
 3. go2rtc owns the CSI camera exclusively. `monitor.py` fetches frames via `GET http://localhost:1984/api/frame.jpeg?src=grandma`. Never import or use `picamera2` in application code.
 4. Two-way audio uses WebRTC via go2rtc over Tailscale (UDP). It does NOT work through Cloudflare Tunnel (HTTP-only). Dashboard features use Cloudflare; audio uses Tailscale. Mom needs Tailscale installed for audio only.
@@ -148,7 +148,7 @@ After completing a task, log any corrections, preferences, patterns, or discover
 ### Recent Lessons (last 5)
 
 <!-- Claude maintains this as a quick-reference mirror of the most recent entries from context/lessons.md. -->
-2026-04-10: Cloudflare Tunnel setup — store the tunnel token in EnvironmentFile=/etc/grandma-watcher/cloudflare.env (mode 600) so it stays out of the service unit (which is checked into git); systemd reads EnvironmentFile as root before dropping to the service user, so root-owned 600 works fine.
+2026-04-10: Cloudflare Tunnel setup — store the tunnel token in EnvironmentFile=/etc/vigil/cloudflare.env (mode 600) so it stays out of the service unit (which is checked into git); systemd reads EnvironmentFile as root before dropping to the service user, so root-owned 600 works fine.
 2026-04-11: When mocking `time.monotonic` in `run_forever` tests with a finite iterator, the iterator runs out because multiple monotonic calls occur per iteration — use `sustained_outage_minutes=0` in the test config instead, which removes the need to mock time entirely.
 2026-04-11: `crontab -u <user>` in install.sh requires root and writes to a named user's crontab — use `sudo -u "$SERVICE_USER" crontab` instead so the entry lands in the correct user's crontab rather than root's.
 2026-04-11: NanoGPT API is OpenAI-compatible at https://nano-gpt.com/api/v1; new cloud providers need a *_provider.py, api key + base_url fields in ApiConfig, entry in _PROVIDER_REQUIRED_SECRETS, and an elif in monitor.main().

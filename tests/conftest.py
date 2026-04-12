@@ -1,4 +1,4 @@
-"""Shared pytest fixtures for grandma-watcher tests."""
+"""Shared pytest fixtures for vigil tests."""
 
 from pathlib import Path
 

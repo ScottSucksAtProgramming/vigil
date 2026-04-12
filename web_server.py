@@ -1,4 +1,4 @@
-"""Flask dashboard for grandma-watcher.
+"""Flask dashboard for vigil.
 
 Routes:
     GET  /               Serve caregiver dashboard HTML.

@@ -1,4 +1,4 @@
-"""Stable extension-point interfaces for grandma-watcher.
+"""Stable extension-point interfaces for vigil.
 
 These three Protocols are the architectural seams of the system. New VLM providers,
 alert channels, and sensor nodes are added by implementing one of these Protocols —

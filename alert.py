@@ -1,4 +1,4 @@
-"""Alert decision logic for grandma-watcher.
+"""Alert decision logic for vigil.
 
 Single public function: decide_alert_type().
 Pure function — no I/O, no logging, no global state.

@@ -1,4 +1,4 @@
-/* dashboard.js — grandma-watcher caregiver dashboard */
+/* dashboard.js — vigil caregiver dashboard */
 "use strict";
 
 // ── Stream ─────────────────────────────────────────────────

@@ -1,4 +1,4 @@
-# grandma-watcher — Product Requirements Document
+# vigil — Product Requirements Document
 
 **Version:** 2.7
 **Last Updated:** April 11, 2026

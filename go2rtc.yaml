@@ -1,4 +1,4 @@
-# go2rtc configuration for grandma-watcher
+# go2rtc configuration for vigil
 # Raspberry Pi 5 + Arducam IMX708 NoIR (CSI) + USB audio
 #
 # IMPORTANT: Pi 5 standard rpicam-apps packages do not include the libav H.264

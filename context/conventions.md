@@ -1,11 +1,11 @@
 ---
-title: "grandma-watcher Conventions"
+title: "vigil Conventions"
 summary: "File naming, dataset schema, config patterns, and coding conventions for the eldercare monitor"
 created: 2026-04-07
 updated: 2026-04-07
 ---
 
-# grandma-watcher Conventions
+# vigil Conventions
 
 ## What Belongs Here
 
