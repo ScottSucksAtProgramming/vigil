@@ -129,7 +129,7 @@ def test_sensor_defaults_from_builder():
 def test_load_valid_config():
     config = load_config(str(VALID_FIXTURE))
     assert isinstance(config, AppConfig)
-    assert config.api.provider == "openrouter"
+    assert config.api.provider == "nanogpt"
     assert config.monitor.interval_seconds == 30
     assert config.alerts.pushover_api_key == "test-key-pushover-app"
 

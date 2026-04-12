@@ -25,8 +25,8 @@ def _dataset_entry(**overrides) -> DatasetEntry:
     defaults = dict(
         timestamp="2026-04-09T03:00:00Z",
         image_path="",
-        provider="openrouter",
-        model="qwen/qwen3-vl-32b-instruct",
+        provider="nanogpt",
+        model="Qwen3 VL 235B A22B Instruct",
         prompt_version="1.0",
         sensor_snapshot=SensorSnapshot(load_cells_enabled=False, vitals_enabled=False),
         response_raw='{"safe": true, "confidence": "high"}',

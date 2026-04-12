@@ -1,8 +1,9 @@
 # Minimal valid fixture - required sections only, fake non-empty secrets.
 # Optional sections are intentionally omitted to exercise defaults.
 api:
-  provider: "openrouter"
-  model: "qwen/qwen3-vl-32b-instruct"
+  provider: "nanogpt"
+  model: "Qwen3 VL 235B A22B Instruct"
+  nanogpt_api_key: "test-key-nanogpt"
   openrouter_api_key: "test-key-openrouter"
   hyperbolic_api_key: ""
   anthropic_api_key: ""

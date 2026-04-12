@@ -680,8 +680,7 @@ def test_main_selects_lmstudio_provider_when_configured(tmp_path):
         """
 api:
   provider: lmstudio
-  model: "qwen/qwen3-vl-32b-instruct"
-  openrouter_api_key: ""
+  model: "Qwen3 VL 235B A22B Instruct"
   lmstudio_base_url: "http://localhost:1234"
   lmstudio_model: "qwen3-vlm-7b"
 monitor:

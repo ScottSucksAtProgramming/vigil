@@ -52,8 +52,8 @@ class SensorsConfig:
 
 @dataclass(frozen=True)
 class ApiConfig:
-    provider: str = "openrouter"
-    model: str = "qwen/qwen3-vl-32b-instruct"
+    provider: str = "nanogpt"
+    model: str = "Qwen3 VL 235B A22B Instruct"
     openrouter_api_key: str = ""
     hyperbolic_api_key: str = ""
     anthropic_api_key: str = ""

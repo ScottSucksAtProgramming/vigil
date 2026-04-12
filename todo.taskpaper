@@ -33,7 +33,8 @@ grandma-watcher:
 		- Extend test_monitor.py with pinger and escalation tests @done
 
 	Backlog:
-		- Lower MJPEG stream quality for slow connections (StreamConfig: stream_width/height/fps → passed as go2rtc params; frame.jpeg for AI unaffected)
+		- Lower MJPEG stream quality for slow connections (StreamConfig: stream_width/height/fps → passed as go2rtc params; frame.jpeg for AI unaffected) @done
+		- Add MJPEG stream auto-reconnect with exponential backoff (3s base, 60s max) and periodic forced reconnect every 5 min @done
 
 	Milestone 2 - Flask Dashboard:
 		- Implement web_server.py skeleton (Flask app, routes registered, systemd service runs) @done

@@ -1,7 +1,7 @@
 # vigil — Product Requirements Document
 
 **Version:** 2.7
-**Last Updated:** April 11, 2026
+**Last Updated:** April 12, 2026
 **Status:** Ready for Development  
 
 ---
@@ -83,7 +83,7 @@ Her daughter (referred to as "Mom") is the full-time live-in caregiver. This sit
        |── Camera frames every 30s (via go2rtc HTTP snapshot)
        |      └── Base64 encode
        |      └── Build prompt (image + sensor readings)
-       |      └── Call OpenRouter API (Qwen3-VL-32B-Instruct)
+       |      └── Call NanoGPT API (Qwen3 VL 235B A22B Instruct)
        |      └── Parse + validate JSON response
        |      └── Save image + response to dataset (selective retention)
        |      └── If UNSAFE → Pushover alert + dashboard link (no image; silence check)
@@ -115,7 +115,7 @@ Her daughter (referred to as "Mom") is the full-time live-in caregiver. This sit
 
 **go2rtc owns the camera:** go2rtc is the sole owner of the CSI camera. `monitor.py` pulls snapshots via go2rtc's HTTP snapshot endpoint (`GET http://localhost:1984/api/frame.jpeg?src=grandma`) rather than using picamera2 directly. This avoids camera sharing conflicts and cleanly separates streaming from monitoring. If `monitor.py` crashes, the live stream stays up. go2rtc uses `rpicam-vid` (not `libcamera-vid` — deprecated) with `--libav-format h264`, which is required on Pi 5. See `go2rtc.yaml` for the full source configuration.
 
-**API inference over local inference:** Phase 1 uses OpenRouter hosting Qwen3-VL-32B (~$11/month at 30-second intervals, 960×540 resolution). Together AI does not offer Qwen2.5-VL-72B on serverless endpoints. OpenRouter provides a single API key with easy model switching via config. Fallback model: Qwen2.5-VL-72B via Hyperbolic (~$45/month) if accuracy is insufficient.
+**API inference over local inference:** Phase 1 uses NanoGPT hosting Qwen3 VL 235B A22B Instruct. Multiple providers are supported via config (`nanogpt`, `openrouter`, `hyperbolic`, `lmstudio`) — switching providers requires only a config change. Fallback model: Qwen2.5-VL-72B via Hyperbolic (~$45/month) if accuracy is insufficient.
 
 **Hub and Spoke sensor architecture (Phase 2):** The Pi 5 acts as the central hub. Pi Zero 2W sensor nodes connect via WiFi HTTP endpoints. Each sensor node runs a tiny Flask HTTP server; the Pi polls them every few seconds and folds sensor readings into the VLM prompt.
 
@@ -133,7 +133,7 @@ Mom needs one app install (Tailscale) for audio. All other features work from a 
 
 **Healthchecks.io for silent system health monitoring:** The Pi pings a Healthchecks.io URL every monitoring cycle. If check-ins are missed, Healthchecks.io sends a Pushover alert to the builder first. For sustained outages (configurable threshold, default 30 minutes), a secondary alert is sent to Mom so she can physically check on grandma when the builder cannot intervene remotely. No noise when the system is healthy — only alerts on failure. Free tier is sufficient.
 
-**Known limitation — internet dependency:** All AI inference runs on cloud APIs (OpenRouter). All remote access (dashboard, alerts, builder SSH) requires internet connectivity. A home internet outage means: no AI assessments, no Pushover alerts, no dashboard access, no remote builder access. The Healthchecks.io missed check-in alert will fire to the builder and Mom if outage is sustained, but they cannot use the system until connectivity is restored. This limitation will be resolved in Phase 4 when on-device inference is deployed. Until then, Mom remains the local safety net during outages.
+**Known limitation — internet dependency:** All AI inference runs on cloud APIs (NanoGPT). All remote access (dashboard, alerts, builder SSH) requires internet connectivity. A home internet outage means: no AI assessments, no Pushover alerts, no dashboard access, no remote builder access. The Healthchecks.io missed check-in alert will fire to the builder and Mom if outage is sustained, but they cannot use the system until connectivity is restored. This limitation will be resolved in Phase 4 when on-device inference is deployed. Until then, Mom remains the local safety net during outages.
 
 **Pushover notifications — link only, no embedded images:** Pushover alerts include a dashboard URL link, not an embedded image. This keeps all visual footage within the home network and avoids accumulating images of a vulnerable person on third-party servers. Future notification channels (Signal bot, Matrix, native iOS app) are under consideration for Phase 3+.
 
@@ -149,19 +149,17 @@ Mom needs one app install (Tailscale) for audio. All other features work from a 
 
 ### 6.1 Model
 
-**Provider:** OpenRouter  
-**Model:** `qwen/qwen3-vl-32b-instruct` (~$11/month at 30s intervals, 960×540)  
-**Fallback:** `qwen/qwen2.5-vl-72b-instruct` via Hyperbolic (~$45/month) if accuracy is insufficient  
-**Note:** Together AI does not offer Qwen2.5-VL-72B on serverless — dedicated endpoints only (custom pricing).
-
-**Cost estimate:** ~700 image tokens + ~350 prompt text tokens = ~1,050 input tokens per call. At 2,880 calls/day: ~3M input tokens/day + ~290K output tokens/day. Monthly: ~93M input ($9.70 at $0.104/M) + ~9M output ($3.74 at $0.416/M) = **~$13.50/month**. Actual cost varies with image tokenization — validate against the OpenRouter usage dashboard after first real test session.
+**Provider:** NanoGPT
+**Model:** `Qwen3 VL 235B A22B Instruct`
+**Note:** NanoGPT API is OpenAI-compatible at `https://nano-gpt.com/api/v1`.
+**Fallback:** `qwen/qwen2.5-vl-72b-instruct` via Hyperbolic (~$45/month) if accuracy is insufficient. Together AI does not offer Qwen2.5-VL-72B on serverless — dedicated endpoints only (custom pricing).
 
 **Local Testing (development only):**
 During hardware bringup and camera integration testing, the builder can run a
-local LM Studio instance (MacBook Pro) and point the Pi at it to avoid OpenRouter
+local LM Studio instance (MacBook Pro) and point the Pi at it to avoid NanoGPT
 API costs. Set `api.provider: lmstudio` in `config.yaml`. The Pi reaches LM Studio
 over LAN or Tailscale; LM Studio must be configured to listen on `0.0.0.0`.
-Switch back to `api.provider: openrouter` for production. See
+Switch back to `api.provider: nanogpt` for production. See
 `docs/superpowers/specs/2026-04-09-lmstudio-provider-design.md` for full details.
 
 ### 6.2 Prompt Template
@@ -357,7 +355,7 @@ Measure the room before purchasing. Skip entirely during development.
 | Camera | go2rtc + rpicam-vid | go2rtc owns CSI camera; monitor.py pulls HTTP snapshots |
 | Live streaming | go2rtc | WebRTC, RTSP, HLS output; two-way audio |
 | Web dashboard | Flask + WebSocket | Mom's browser interface |
-| AI inference | OpenRouter API | Qwen3-VL-32B-Instruct (~$13.50/month) |
+| AI inference | NanoGPT API | Qwen3 VL 235B A22B Instruct |
 | Alerts | Pushover | $5 one-time iOS/Android app |
 | Remote access (Mom) | Cloudflare Tunnel | No app install, browser only |
 | Remote access (Builder) | Tailscale | SSH admin access |
@@ -412,8 +410,10 @@ eldercare/
 ```yaml
 # API Configuration
 api:
-  provider: "openrouter"  # openrouter | hyperbolic | anthropic | lmstudio
-  model: "qwen/qwen3-vl-32b-instruct"
+  provider: "nanogpt"  # nanogpt | openrouter | hyperbolic | anthropic | lmstudio
+  model: "Qwen3 VL 235B A22B Instruct"
+  nanogpt_api_key: ""
+  nanogpt_base_url: "https://nano-gpt.com/api/v1"
   openrouter_api_key: ""
   hyperbolic_api_key: ""
   anthropic_api_key: ""
@@ -765,7 +765,7 @@ No changes to existing modules.
 |---|---|---|---|
 | High false positive rate alarms Mom repeatedly | Medium | High | Confidence threshold logic, cooldown, iterative prompt tuning |
 | SD card corruption on power outage | Medium | High | UPS + apcupsd graceful shutdown at 30% battery; Pushover alert to builder on power loss; journaling filesystem |
-| OpenRouter API outage | Low | High | Fallback to Hyperbolic (Qwen2.5-VL-72B) via config provider switch; alert builder if 3+ consecutive API failures |
+| NanoGPT API outage | Low | High | Fallback to Hyperbolic (Qwen2.5-VL-72B) via config provider switch; alert builder if 3+ consecutive API failures |
 | Camera angle misses dangerous position | Medium | Medium | Test placement carefully; overhead preferred over side |
 | Mom ignores alerts due to false positive fatigue | Medium | High | Tune aggressively in first two weeks; get false positives under 3/day |
 | Pi overheats running 24/7 | Low | Medium | Active cooler included in CanaKit PRO kit; monitor CPU temp |
@@ -806,7 +806,7 @@ Security hardening is a pre-ship requirement. All items in §19.1 must be comple
 - [ ] **Bind go2rtc to localhost** — Change `go2rtc.yaml` to bind the API/snapshot port (`1984`) to `127.0.0.1` only. This prevents direct access to the stream on the local network, even from other devices on Mom's WiFi. The Flask server proxies it; nothing else needs direct access.
 - [ ] **Tailscale-gate the video stream** — The Flask MJPEG proxy endpoint must check that the request arrives via the Tailscale network interface before forwarding to go2rtc. Requests arriving via Cloudflare (i.e., without a valid Tailscale source) receive a static placeholder image. Mom has Tailscale installed; this adds no friction for her day-to-day use.
 - [ ] **Enable 2FA on builder's Google account** — The builder's Google account controls Cloudflare Access, which controls who can log in to the dashboard. A hardware security key or TOTP authenticator app must be active on this account before shipping.
-- [ ] **Rotate all API keys** — Rotate OpenRouter, Hyperbolic, and Pushover keys immediately before flashing the final SD card. Keys present during development are considered potentially exposed.
+- [ ] **Rotate all API keys** — Rotate NanoGPT, Hyperbolic, and Pushover keys immediately before flashing the final SD card. Keys present during development are considered potentially exposed.
 - [ ] **Verify `config.yaml` is in `.gitignore`** — API keys, Pushover user keys, and the Cloudflare tunnel token must never be committed to the repository.
 
 ### 19.2 Dataset Encryption and Archival
@@ -922,7 +922,7 @@ python smoke_test.py
 
 Checks and reports:
 - go2rtc running and returning a valid snapshot
-- OpenRouter API responding with valid JSON
+- NanoGPT API responding with valid JSON
 - Pushover delivering to both Mom and builder
 - Cloudflare tunnel reachable from the internet
 - Tailscale connected
@@ -971,4 +971,4 @@ Note: `picamera2` is NOT a dependency. Camera access is handled entirely by go2r
 
 ---
 
-*This PRD reflects all decisions made through April 11, 2026. Hardware confirmed via Amazon screenshots. Architecture finalized through builder-led design sessions.*
+*This PRD reflects all decisions made through April 12, 2026. Hardware confirmed via Amazon screenshots. Architecture finalized through builder-led design sessions.*

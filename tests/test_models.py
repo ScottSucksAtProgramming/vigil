@@ -130,8 +130,8 @@ def _make_dataset_entry(**overrides) -> DatasetEntry:
     defaults = dict(
         timestamp="2026-04-09T03:00:00Z",
         image_path="dataset/images/2026-04-09_03-00-00.jpg",
-        provider="openrouter",
-        model="qwen/qwen3-vl-32b-instruct",
+        provider="nanogpt",
+        model="Qwen3 VL 235B A22B Instruct",
         prompt_version="1.0",
         sensor_snapshot=SensorSnapshot(load_cells_enabled=False, vitals_enabled=False),
         response_raw='{"safe": true, "confidence": "high"}',
@@ -150,7 +150,7 @@ def _make_dataset_entry(**overrides) -> DatasetEntry:
 def test_dataset_entry_construction():
     entry = _make_dataset_entry()
     assert entry.timestamp == "2026-04-09T03:00:00Z"
-    assert entry.provider == "openrouter"
+    assert entry.provider == "nanogpt"
     assert entry.prompt_version == "1.0"
     assert entry.alert_fired is False
     assert entry.api_latency_ms == 1234.5

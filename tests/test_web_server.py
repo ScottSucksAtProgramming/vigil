@@ -16,8 +16,8 @@ from web_server import create_app
 _ENTRY_TEMPLATE = {
     "timestamp": "2026-04-09T03:00:00Z",
     "image_path": "images/2026-04-09_03-00-00.jpg",
-    "provider": "openrouter",
-    "model": "qwen/qwen3-vl-32b-instruct",
+    "provider": "nanogpt",
+    "model": "Qwen3 VL 235B A22B Instruct",
     "prompt_version": "1.0",
     "sensor_snapshot": {"load_cells_enabled": False, "vitals_enabled": False},
     "response_raw": '{"safe": true}',

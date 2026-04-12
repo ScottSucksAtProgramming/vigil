@@ -13,7 +13,7 @@ FIXTURE_JPEG = Path(__file__).parent / "fixtures" / "frame.jpeg"
 # ── helpers ──────────────────────────────────────────────────────────────────
 
 
-def _make_config(provider="lmstudio"):
+def _make_config(provider="nanogpt"):
     from config import AlertsConfig, ApiConfig, AppConfig, MonitorConfig, StreamConfig
 
     return AppConfig(
@@ -21,8 +21,9 @@ def _make_config(provider="lmstudio"):
             provider=provider,
             lmstudio_base_url="http://localhost:1234",
             lmstudio_model="test-model",
+            nanogpt_api_key="test-key" if provider == "nanogpt" else "",
             openrouter_api_key="test-key" if provider == "openrouter" else "",
-            model="qwen/qwen3-vl-32b-instruct",
+            model="Qwen3 VL 235B A22B Instruct",
             timeout_connect_seconds=5,
             timeout_read_seconds=30,
         ),
@@ -128,8 +129,8 @@ def test_raw_completion_lmstudio_returns_raw_string():
     instance.headers.update.assert_called_once_with({})
 
 
-def test_raw_completion_openrouter_sends_auth_header():
-    config = _make_config(provider="openrouter")
+def test_raw_completion_nanogpt_sends_auth_header():
+    config = _make_config(provider="nanogpt")
     fake_response = MagicMock()
     fake_response.json.return_value = {"choices": [{"message": {"content": "A person."}}]}
 
@@ -144,7 +145,7 @@ def test_raw_completion_openrouter_sends_auth_header():
 
 
 def test_raw_completion_provider_override_uses_lmstudio_endpoint():
-    config = _make_config(provider="openrouter")
+    config = _make_config(provider="nanogpt")
     fake_response = MagicMock()
     fake_response.json.return_value = {"choices": [{"message": {"content": "ok"}}]}
 

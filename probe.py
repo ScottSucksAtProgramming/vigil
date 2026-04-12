@@ -86,6 +86,10 @@ def raw_completion(
         endpoint = f"{config.api.lmstudio_base_url}/v1/chat/completions"
         model = model_override or config.api.lmstudio_model
         headers: dict[str, str] = {}
+    elif provider == "nanogpt":
+        endpoint = f"{config.api.nanogpt_base_url}/chat/completions"
+        model = model_override or config.api.model
+        headers = {"Authorization": f"Bearer {config.api.nanogpt_api_key}"}
     else:
         endpoint = "https://openrouter.ai/api/v1/chat/completions"
         model = model_override or config.api.model
@@ -129,7 +133,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--prompt", help="Inline prompt (overrides --prompt-file and probe_prompt.md)"
     )
     parser.add_argument("--prompt-file", dest="prompt_file", help="Markdown file to use as prompt")
-    parser.add_argument("--provider", help="Override provider from config (lmstudio | openrouter)")
+    parser.add_argument("--provider", help="Override provider from config (nanogpt | openrouter | lmstudio)")
     parser.add_argument("--model", help="Override model from config")
     args = parser.parse_args(argv)
 
