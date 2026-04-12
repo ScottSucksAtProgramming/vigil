@@ -32,6 +32,19 @@ grandma-watcher:
 		- Write tests/test_healthchecks.py (unit tests for HealthchecksPinger) @done
 		- Extend test_monitor.py with pinger and escalation tests @done
 
+	Milestone 4 - Access Notifications and Stream Kill Switch:
+		- Add SecurityConfig dataclass (stream_pause_auto_resume_hours, access_notification_window_minutes, access_notification_ip_whitelist) @done
+		- Implement AccessTracker (fixed 15-min window per IP, case-insensitive whitelist, injectable clock) @done
+		- Implement StreamPauseState (pause/resume/auto-resume, injectable clock) @done
+		- Add POST /stream/pause and POST /stream/resume routes with builder Pushover notifications @done
+		- Add GET /stream/status route (30-second dashboard polling) @done
+		- Wire AccessTracker into index() route; read real IP from CF-Connecting-IP header @done
+		- Dashboard: red pause banner, pause/resume button, stream img switches to stream_paused.jpg @done
+		- Add stream_paused.jpg placeholder asset @done
+		- Write tests/test_security.py (unit tests for AccessTracker and StreamPauseState) @done
+		- Extend tests/test_web_server.py with pause/resume/status/access-notification tests @done
+		- Smoke test on Pi: kill switch toggles stream, access notifications fire via Pushover @done
+
 	Backlog:
 		- Lower MJPEG stream quality for slow connections (StreamConfig: stream_width/height/fps → passed as go2rtc params; frame.jpeg for AI unaffected) @done
 		- Add MJPEG stream auto-reconnect with exponential backoff (3s base, 60s max) and periodic forced reconnect every 5 min @done

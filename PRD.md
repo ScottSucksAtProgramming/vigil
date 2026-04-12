@@ -848,26 +848,31 @@ security:
   nas_rsync_target: ""           # rsync destination, e.g. user@nas.local:/path/to/archive
 ```
 
-### 19.3 Access Notifications and Stream Kill Switch
+### 19.3 Access Notifications and Stream Kill Switch ✅
 
 **Access notifications:**
-- Every time a new session opens the dashboard, a Pushover notification fires to the builder
-- Notification includes source IP and timestamp
+- Every time the dashboard is opened from an IP not seen in the past 15 minutes, a Pushover notification fires to the builder
+- Notification includes source IP
 - Gives the builder early warning of unexpected access without burdening Mom with alerts she initiated herself
-- Implemented as a Flask session hook
+- Implemented via `AccessTracker` (in-memory, injectable clock); fixed 15-minute window from first appearance per IP
+- IP whitelist supported for dev/home IPs that should never trigger notifications
+- Behind Cloudflare Tunnel, the real client IP is read from the `CF-Connecting-IP` header (not `request.remote_addr`, which is always `127.0.0.1`)
 
 **Stream kill switch:**
-- Dashboard button: "Pause Stream"
-- Sets a `stream_paused` flag in Flask app state
-- The MJPEG proxy endpoint returns a static placeholder image when paused
+- Dashboard button: "Pause Stream" / "Resume Stream" in controls bar
+- Managed by `StreamPauseState` in Flask app closure
+- The MJPEG proxy endpoint returns `static/stream_paused.jpg` when paused; the `/stream/status` endpoint is polled every 30 seconds by the dashboard
 - Safety monitoring (AI analysis loop) is **never interrupted** by this flag — only the human-viewable stream is affected
 - Auto-resumes after a configurable timeout (default: 4 hours) to prevent accidental permanent pausing
-- Pushover notification fires to builder when stream is paused or resumed
-- State is shown clearly on the dashboard (red banner when paused)
+- Pushover notification fires to builder on pause, resume, and auto-resume
+- Red banner displayed on dashboard when paused
 
 ```yaml
 security:
-  stream_pause_auto_resume_hours: 4   # auto-resume stream after this many hours
+  stream_pause_auto_resume_hours: 4       # auto-resume stream after this many hours
+  access_notification_window_minutes: 15  # suppress repeat notifications within this window
+  access_notification_ip_whitelist:       # IPs that never trigger access notifications
+    - "1.2.3.4"
 ```
 
 ### 19.4 Threat Model Summary
