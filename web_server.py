@@ -269,10 +269,23 @@ def create_app(config: AppConfig) -> Flask:
     def images(filename: str) -> Response:
         """Serve a saved frame JPEG from dataset.images_dir.
 
-        send_from_directory uses werkzeug.security.safe_join internally,
-        which rejects path traversal attempts and raises a 404.
+        If the JPEG is missing but an encrypted .age archive exists,
+        serve the archived placeholder instead.
         """
-        return send_from_directory(config.dataset.images_dir, filename)
+        from pathlib import Path as _Path
+
+        from flask import abort as _abort
+        from werkzeug.security import safe_join as _safe_join
+
+        safe_jpeg = _safe_join(config.dataset.images_dir, filename)
+        if safe_jpeg is not None and _Path(safe_jpeg).exists():
+            return send_from_directory(config.dataset.images_dir, filename)
+
+        safe_age = _safe_join(config.dataset.archive_dir, f"{filename}.age")
+        if safe_age is not None and _Path(safe_age).exists():
+            return send_from_directory(app.static_folder, "archived_placeholder.jpg")
+
+        _abort(404)
 
     return app
 

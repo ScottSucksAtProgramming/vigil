@@ -341,6 +341,53 @@ def test_report_missed_multiple_calls_append_multiple_entries(checkin_client):
     assert len(lines) == 2
 
 
+@pytest.fixture
+def archived_images_client(sample_config, tmp_path):
+    """Client with images_dir, archive_dir, and archived_placeholder.jpg configured."""
+    images_dir = tmp_path / "images"
+    images_dir.mkdir()
+    archive_dir = tmp_path / "archive"
+    archive_dir.mkdir()
+    static_dir = tmp_path / "static"
+    static_dir.mkdir()
+    (static_dir / "archived_placeholder.jpg").write_bytes(b"\xff\xd8\xff\xd9")
+
+    patched_dataset = dataclasses.replace(
+        sample_config.dataset,
+        images_dir=str(images_dir),
+        archive_dir=str(archive_dir),
+        checkin_log_file=str(tmp_path / "checkins.jsonl"),
+    )
+    cfg = dataclasses.replace(sample_config, dataset=patched_dataset)
+    app = create_app(cfg)
+    app.static_folder = str(static_dir)
+    app.config["TESTING"] = True
+    with app.test_client() as c:
+        yield c, images_dir, archive_dir
+
+
+def test_images_route_serves_archived_placeholder_when_age_file_exists(
+    archived_images_client,
+):
+    """GET /images/<filename> returns archived_placeholder.jpg when .age file exists."""
+    client, images_dir, archive_dir = archived_images_client
+    (archive_dir / "frame.jpg.age").write_bytes(b"encrypted content")
+
+    response = client.get("/images/frame.jpg")
+
+    assert response.status_code == 200
+    assert response.data == b"\xff\xd8\xff\xd9"
+
+
+def test_images_route_returns_404_when_neither_jpeg_nor_age_exists(archived_images_client):
+    """GET /images/<filename> returns 404 when neither JPEG nor .age file exists."""
+    client, images_dir, archive_dir = archived_images_client
+
+    response = client.get("/images/nonexistent.jpg")
+
+    assert response.status_code == 404
+
+
 # ---------------------------------------------------------------------------
 # Caregiver check-in logging
 # ---------------------------------------------------------------------------
