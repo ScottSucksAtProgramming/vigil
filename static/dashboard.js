@@ -435,17 +435,20 @@ function handleTalkSocketMessage(event) {
     return;
   }
   if (!talkPeer) return;
-  if (payload.type === "answer" && payload.sdp) {
+  // go2rtc WebSocket protocol uses type "webrtc/answer" and "webrtc/candidate"
+  if (payload.type === "webrtc/answer" && payload.value) {
     setTalkStatus("Answer received — setting remote desc…");
-    talkPeer.setRemoteDescription(payload).catch((err) => {
-      setTalkStatus("setRemoteDesc failed: " + err.message);
-      endTalkCall();
-    });
+    talkPeer
+      .setRemoteDescription({ type: "answer", sdp: payload.value })
+      .catch((err) => {
+        setTalkStatus("setRemoteDesc failed: " + err.message);
+        endTalkCall();
+      });
     return;
   }
-  if (payload.type === "candidate" && payload.candidate) {
+  if (payload.type === "webrtc/candidate" && payload.value) {
     setTalkStatus("ICE candidate received");
-    talkPeer.addIceCandidate(payload).catch(() => {});
+    talkPeer.addIceCandidate({ candidate: payload.value, sdpMid: "0" }).catch(() => {});
   }
 }
 
@@ -500,7 +503,7 @@ async function startTalkCall() {
         setTalkStatus("Offer created — setting local desc…");
         await talkPeer.setLocalDescription(offer);
         setTalkStatus("Sending offer to go2rtc…");
-        talkSocket.send(JSON.stringify(talkPeer.localDescription));
+        talkSocket.send(JSON.stringify({ type: "webrtc/offer", value: offer.sdp }));
         setTalkStatus("Offer sent — waiting for answer…");
       } catch (err) {
         setTalkStatus("Offer failed: " + err.message);
@@ -521,7 +524,7 @@ async function startTalkCall() {
 
     talkPeer.addEventListener("icecandidate", (event) => {
       if (event.candidate && talkSocket && talkSocket.readyState === WebSocket.OPEN) {
-        talkSocket.send(JSON.stringify(event.candidate));
+        talkSocket.send(JSON.stringify({ type: "webrtc/candidate", value: event.candidate.candidate }));
       }
     });
   } catch (_) {
