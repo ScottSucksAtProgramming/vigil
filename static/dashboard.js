@@ -7,7 +7,7 @@ const STREAM_RECONNECT_BASE_MS = 3_000;
 const STREAM_RECONNECT_MAX_MS = 60_000;
 const STREAM_PERIODIC_MS = 5 * 60 * 1_000; // periodic stall safety net
 const STREAM_PAUSE_POLL_MS = 30_000;
-const TALK_WS_PORT = "1984";
+const TALK_WS_DEFAULT_PORT = "1984";
 
 let _streamReconnectDelay = STREAM_RECONNECT_BASE_MS;
 let _streamReconnectTimer = null;
@@ -423,7 +423,8 @@ async function endTalkCall(options = {}) {
 function buildTalkSocketUrl(rawTalkUrl, streamName) {
   const url = new URL(rawTalkUrl, window.location.href);
   const wsProtocol = url.protocol === "https:" ? "wss:" : "ws:";
-  return `${wsProtocol}//${url.hostname}:${TALK_WS_PORT}/api/ws?src=${encodeURIComponent(streamName)}`;
+  const port = url.port || TALK_WS_DEFAULT_PORT;
+  return `${wsProtocol}//${url.hostname}:${port}/api/ws?src=${encodeURIComponent(streamName)}`;
 }
 
 function handleTalkSocketMessage(event) {
