@@ -436,13 +436,15 @@ function handleTalkSocketMessage(event) {
   }
   if (!talkPeer) return;
   if (payload.type === "answer" && payload.sdp) {
-    talkPeer.setRemoteDescription(payload).catch(() => {
-      setTalkStatus("Connection failed — try again");
+    setTalkStatus("Answer received — setting remote desc…");
+    talkPeer.setRemoteDescription(payload).catch((err) => {
+      setTalkStatus("setRemoteDesc failed: " + err.message);
       endTalkCall();
     });
     return;
   }
   if (payload.type === "candidate" && payload.candidate) {
+    setTalkStatus("ICE candidate received");
     talkPeer.addIceCandidate(payload).catch(() => {});
   }
 }
@@ -489,16 +491,19 @@ async function startTalkCall() {
     });
 
     const _wsUrl = buildTalkSocketUrl(btn.dataset.talkUrl, btn.dataset.streamName || "grandma");
-    setTalkStatus(_wsUrl);
-    await new Promise((r) => setTimeout(r, 3000));
+    setTalkStatus("Connecting to " + _wsUrl);
     talkSocket = new WebSocket(_wsUrl);
     talkSocket.addEventListener("open", async () => {
+      setTalkStatus("WS open — creating offer…");
       try {
         const offer = await talkPeer.createOffer();
+        setTalkStatus("Offer created — setting local desc…");
         await talkPeer.setLocalDescription(offer);
+        setTalkStatus("Sending offer to go2rtc…");
         talkSocket.send(JSON.stringify(talkPeer.localDescription));
-      } catch (_) {
-        setTalkStatus("Connection failed — try again");
+        setTalkStatus("Offer sent — waiting for answer…");
+      } catch (err) {
+        setTalkStatus("Offer failed: " + err.message);
         endTalkCall();
       }
     });
