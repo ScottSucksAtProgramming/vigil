@@ -488,7 +488,10 @@ async function startTalkCall() {
       }
     });
 
-    talkSocket = new WebSocket(buildTalkSocketUrl(btn.dataset.talkUrl, btn.dataset.streamName || "grandma"));
+    const _wsUrl = buildTalkSocketUrl(btn.dataset.talkUrl, btn.dataset.streamName || "grandma");
+    setTalkStatus(_wsUrl);
+    await new Promise((r) => setTimeout(r, 3000));
+    talkSocket = new WebSocket(_wsUrl);
     talkSocket.addEventListener("open", async () => {
       try {
         const offer = await talkPeer.createOffer();
