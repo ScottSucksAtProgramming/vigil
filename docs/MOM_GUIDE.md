@@ -65,6 +65,8 @@ The **🎙 Talk** button opens a two-way audio connection so you can speak to Gr
 
 **This requires the Tailscale app** to be installed on your phone. If the button is grayed out, Tailscale isn't connected — open the Tailscale app and make sure it's running.
 
+When a call is active, the dashboard shows a **📞 Call in progress** banner near the top. That banner disappears automatically after the call ends.
+
 ---
 
 ## If the Video Freezes
