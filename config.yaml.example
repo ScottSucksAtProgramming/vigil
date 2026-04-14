@@ -187,4 +187,13 @@ audio:
 
   # Path to chime audio file, relative to project WorkingDirectory
   # WorkingDirectory is set in setup/systemd/monitor.service
-  chime_file: "static/chime.mp3"
+  chime_file: "static/chime.wav"
+
+  # ALSA capture device for room audio input
+  alsa_mic_device: ""
+
+  # ALSA playback device for Mom's voice output
+  alsa_speaker_device: ""
+
+  # End abandoned calls automatically after this many minutes
+  call_auto_expire_minutes: 60

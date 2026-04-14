@@ -142,7 +142,10 @@ class TailscaleConfig:
 @dataclass(frozen=True)
 class AudioConfig:
     chime_before_talk: bool = True
-    chime_file: str = "static/chime.mp3"  # relative to project WorkingDirectory
+    chime_file: str = "static/chime.wav"  # relative to project WorkingDirectory
+    alsa_mic_device: str = ""
+    alsa_speaker_device: str = ""
+    call_auto_expire_minutes: int = 60
 
 
 @dataclass(frozen=True)

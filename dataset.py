@@ -10,10 +10,11 @@ import fcntl
 import json
 import logging
 import tempfile
+from collections.abc import Callable
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from config import AppConfig
 from models import DatasetEntry
