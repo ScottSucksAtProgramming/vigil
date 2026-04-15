@@ -9,7 +9,7 @@ updated: 2026-04-07
 
 <!-- Append dated one-liners below. When 3+ related lessons accumulate on a topic, extract into a dedicated context file. -->
 
-2026-04-15: buildTalkSocketUrl must mirror talk_url protocol (https→wss) and use its port — browsers block ws:// from an HTTPS page as Mixed Content. talk_url should point to go2rtc's TLS port (1985), not Flask. The root cause of the audio outage was a go2rtc.yaml merge conflict that prevented TLS from loading, making wss://hostname:1985 fail the handshake.
+2026-04-15: Two-way audio architecture invariants — (1) talk_url in config.yaml must point to go2rtc's TLS port (1985), NOT Flask's port; (2) buildTalkSocketUrl must mirror the talk_url protocol (https→wss) — changing it to ws: causes Mixed Content blocks on HTTPS pages; (3) go2rtc.yaml merge conflicts silently prevent TLS from loading, making wss:// fail — always verify `[api] tls listen addr=:1985` appears in `journalctl -u go2rtc` before debugging the JS; (4) if /talk/end fires ~2 seconds after /talk/start with no WebRTC activity in between, the WebSocket connection was blocked (Mixed Content or TLS mismatch), not a signaling issue.
 
 2026-04-13: rsync preserves source file permissions — log.jsonl on the Pi should be 644 so it arrives readable on the TrueNAS SMB share; 600 makes it unreadable to the SMB user even though the .age files are fine.
 2026-04-13: TrueNAS SCALE manages SSH authorized_keys via its middleware database, not the filesystem — ssh-copy-id writes to disk but is ignored; the key must be added through the UI (Credentials → Local Users → Edit → Authorized Keys) or via `sudo -u <user> tee ~/.ssh/authorized_keys`.

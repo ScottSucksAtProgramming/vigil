@@ -167,7 +167,7 @@ After completing a task, log any corrections, preferences, patterns, or discover
 ### Recent Lessons (last 5)
 
 <!-- Claude maintains this as a quick-reference mirror of the most recent entries from context/lessons.md. -->
-2026-04-15: buildTalkSocketUrl must mirror talk_url protocol (https→wss) — browsers block ws:// from HTTPS pages as Mixed Content. talk_url must point to go2rtc's TLS port (1985), not Flask. Audio outage root cause: go2rtc.yaml merge conflict prevented TLS loading, so wss://hostname:1985 failed the handshake.
+2026-04-15: Audio debug checklist — talk_url must point to go2rtc TLS port (1985) not Flask; buildTalkSocketUrl must use wss: (ws: = Mixed Content block on HTTPS); go2rtc.yaml merge conflicts silently prevent TLS from loading — verify `[api] tls listen addr=:1985` in journalctl before touching JS; /talk/end firing ~2s after /talk/start = WebSocket blocked, not a signaling bug.
 2026-04-14: After a worktree-based Codex implementation, always audit all changed files with `git status` before merging — Codex left monitor.py and docs uncommitted in the worktree.
 2026-04-14: Any stream-name referenced in JS must be injected via a template data attribute — hardcoding `?src=grandma` violates the config-as-single-source-of-truth rule.
 2026-04-14: Config feature-flag fields must be consulted at the call site; a defined-but-ignored field is a maintenance hazard — wire it or remove it before merging.
