@@ -167,8 +167,8 @@ After completing a task, log any corrections, preferences, patterns, or discover
 ### Recent Lessons (last 5)
 
 <!-- Claude maintains this as a quick-reference mirror of the most recent entries from context/lessons.md. -->
+2026-04-15: buildTalkSocketUrl must always use ws: (never derived from talk_url protocol) — go2rtc API is plain HTTP; mirroring https:→wss: fails TLS handshake. Always hardcode go2rtc port 1984 instead of reading from talk_url (which may be Flask's port).
 2026-04-14: After a worktree-based Codex implementation, always audit all changed files with `git status` before merging — Codex left monitor.py and docs uncommitted in the worktree.
 2026-04-14: Any stream-name referenced in JS must be injected via a template data attribute — hardcoding `?src=grandma` violates the config-as-single-source-of-truth rule.
 2026-04-14: Config feature-flag fields must be consulted at the call site; a defined-but-ignored field is a maintenance hazard — wire it or remove it before merging.
 2026-04-13: When debugging rsync exit 11 from a Python subprocess, write a standalone debug script that prints stderr — capture_output=True hides the actual error message (e.g., a typo in nas_rsync_target).
-2026-04-13: rsync preserves source file permissions — log.jsonl on the Pi must be 644 so it arrives readable on the TrueNAS SMB share; 600 makes it unreadable to the SMB user.

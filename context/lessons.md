@@ -9,6 +9,8 @@ updated: 2026-04-07
 
 <!-- Append dated one-liners below. When 3+ related lessons accumulate on a topic, extract into a dedicated context file. -->
 
+2026-04-15: buildTalkSocketUrl must always use ws: (not derived from talk_url protocol) because go2rtc API is plain HTTP — mirroring https: → wss: breaks TLS handshake; similarly, always hardcode go2rtc port 1984 instead of reading talk_url port, which may be Flask's port.
+
 2026-04-13: rsync preserves source file permissions — log.jsonl on the Pi should be 644 so it arrives readable on the TrueNAS SMB share; 600 makes it unreadable to the SMB user even though the .age files are fine.
 2026-04-13: TrueNAS SCALE manages SSH authorized_keys via its middleware database, not the filesystem — ssh-copy-id writes to disk but is ignored; the key must be added through the UI (Credentials → Local Users → Edit → Authorized Keys) or via `sudo -u <user> tee ~/.ssh/authorized_keys`.
 2026-04-13: Enabling an SMB share with ACLs on a TrueNAS dataset resets the dataset to NFSv4 ACL mode, which blocks chmod from the shell and breaks SSH StrictModes if the home dir becomes world-writable — strip ACLs back to POSIX after adding the share, and remove Write from the "Other" ACL entry.
